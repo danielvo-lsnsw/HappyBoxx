@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>145270ad-7e3a-42e6-aec3-4cdf803b7c94</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\Catalog\HappyBoxx.Catalog.Api\HappyBoxx.Catalog.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Inventory\HappyBoxx.Inventory.Api\HappyBoxx.Inventory.Api.csproj" />
+    <ProjectReference Include="..\..\Gateway\HappyBoxx.Gateway\HappyBoxx.Gateway.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+  </ItemGroup>
+
+</Project>
