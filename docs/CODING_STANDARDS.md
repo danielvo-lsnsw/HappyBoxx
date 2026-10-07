@@ -184,25 +184,30 @@ A feature file **MAY** contain several small types for one use case: request/res
 | HTTP          | Thin `fetch` wrapper (`src/lib/api/httpClient.ts`) |
 | Lint / format | ESLint (flat config) + Prettier                |
 | Testing       | Vitest + React Testing Library                 |
-| UI kit        | *To be decided*                                |
+| UI kit        | Mantine + Tabler icons — layout & UX rules in [UI_GUIDELINES.md](UI_GUIDELINES.md) |
 
 ### 4.2 Structure (feature-based)
 
 ```
 src/
-  app/          # App shell: providers, router
+  app/          # App shell: providers, router, navigation config, layout (header/sidebar)
   components/   # shared, generic UI components (no business logic)
+    data/         # DataTable, StatusBadge, QueryState, pagination…
+    page/         # PageHeader, FilterBar, DetailDrawer…
   features/
     categories/
-      api.ts        # API calls + TanStack Query hooks
-      types.ts      # DTO types matching the backend contracts
+      api.ts        # API calls + TanStack Query hooks (public)
+      types.ts      # DTO types matching the backend contracts (public)
       pages/        # route-level components
-      components/   # feature-specific components
-  lib/          # framework-agnostic helpers (http client, formatting)
-  pages/        # generic pages (Dashboard, NotFound)
+      components/   # feature-specific components (private)
+  lib/          # framework-agnostic helpers (http client, formatting, units, csv)
+  pages/        # generic pages (Dashboard, NotFound, ComingSoon)
 ```
 
-- A feature **MUST NOT** import from another feature's internals. Shared code moves to `components/` or `lib/`.
+- A feature **MAY** use another feature's public `api.ts` and `types.ts`. It **MUST NOT** import another feature's `components/` or `pages/`. Shared UI moves to `components/`, shared logic to `lib/`.
+- `components/` **MUST NOT** import from `features/`. Anything that combines feature data belongs in `app/` or a feature.
+- Page state (filters, paging, open drawer) lives in the URL (`useUrlParams`).
+- Layout and UX rules: see [UI_GUIDELINES.md](UI_GUIDELINES.md).
 - Use the `@/` path alias for imports from `src`.
 
 ### 4.3 Conventions

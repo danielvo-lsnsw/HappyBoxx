@@ -12,6 +12,13 @@ export interface AdjustStockRequest {
   quantityChange: number;
 }
 
+export interface CreateStockItemRequest {
+  productId: string;
+  sku: string;
+  initialQuantity: number;
+  reorderLevel: number;
+}
+
 export interface ListStockParams {
   page?: number;
   pageSize?: number;

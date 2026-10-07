@@ -1,34 +1,161 @@
-import { QueryState } from '@/components/QueryState';
+import { Button, SegmentedControl, Text, TextInput } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
+import { IconCategoryPlus, IconFolderOff, IconSearch } from '@tabler/icons-react';
+import { DataTable, type DataTableColumn } from '@/components/data/DataTable';
+import { EmptyState } from '@/components/data/EmptyState';
+import { QueryState } from '@/components/data/QueryState';
+import { ActiveBadge } from '@/components/data/StatusBadge';
+import { TablePagination } from '@/components/data/TablePagination';
+import { DataPanel } from '@/components/page/DataPanel';
+import { FilterBar } from '@/components/page/FilterBar';
+import { PageHeader } from '@/components/page/PageHeader';
+import { formatDateTime } from '@/lib/format';
+import { useUrlParams } from '@/lib/useUrlParams';
 import { useCategoriesQuery } from '../api';
+import { CategoryDrawer } from '../components/CategoryDrawer';
+import type { Category } from '../types';
+
+const columns: DataTableColumn<Category>[] = [
+  {
+    key: 'name',
+    header: 'Name',
+    render: (c) => (
+      <Text fw={600} size="sm">
+        {c.name}
+      </Text>
+    ),
+  },
+  {
+    key: 'description',
+    header: 'Description',
+    render: (c) => (
+      <Text size="sm" c="dimmed" lineClamp={1}>
+        {c.description ?? '—'}
+      </Text>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 120,
+    render: (c) => <ActiveBadge isActive={c.isActive} />,
+  },
+  {
+    key: 'updated',
+    header: 'Last updated',
+    width: 200,
+    render: (c) => (
+      <Text size="sm" c="dimmed">
+        {formatDateTime(c.updatedAtUtc)}
+      </Text>
+    ),
+  },
+];
 
 export function CategoriesPage() {
-  const query = useCategoriesQuery();
+  const url = useUrlParams();
+  const page = url.getNumber('page', 1);
+  const pageSize = url.getNumber('pageSize', 20);
+  const search = url.get('search') ?? '';
+  const status = url.get('status') ?? 'all';
+  const categoryId = url.get('categoryId');
+  const creating = url.get('create') === '1';
+  const [debouncedSearch] = useDebouncedValue(search.trim(), 300);
+
+  const categories = useCategoriesQuery({
+    page,
+    pageSize,
+    search: debouncedSearch || undefined,
+    isActive: status === 'all' ? undefined : status === 'active',
+  });
+
+  const hasActiveFilters = !!search || status !== 'all';
+  const newCategory = () => url.set({ create: 1, categoryId: undefined }, { push: true });
 
   return (
-    <section>
-      <h1>Categories</h1>
-      <QueryState query={query} isEmpty={(data) => data.items.length === 0}>
-        {(data) => (
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Active</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((category) => (
-                <tr key={category.id}>
-                  <td>{category.name}</td>
-                  <td>{category.description}</td>
-                  <td>{category.isActive ? 'Yes' : 'No'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </QueryState>
-    </section>
+    <>
+      <PageHeader
+        title="Categories"
+        description="Group products so staff and buyers can find them quickly."
+        actions={
+          <Button leftSection={<IconCategoryPlus size={18} />} onClick={newCategory}>
+            New category
+          </Button>
+        }
+      />
+
+      <FilterBar
+        hasActiveFilters={hasActiveFilters}
+        onReset={() => url.set({ search: undefined, status: undefined, page: undefined })}
+      >
+        <TextInput
+          aria-label="Search categories"
+          placeholder="Search categories"
+          leftSection={<IconSearch size={18} />}
+          value={search}
+          onChange={(e) => url.set({ search: e.currentTarget.value, page: undefined })}
+          w={260}
+        />
+        <SegmentedControl
+          aria-label="Status"
+          value={status}
+          onChange={(value) =>
+            url.set({ status: value === 'all' ? undefined : value, page: undefined })
+          }
+          data={[
+            { value: 'all', label: 'All' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+      </FilterBar>
+
+      <DataPanel>
+        <QueryState
+          query={categories}
+          isEmpty={(data) => data.items.length === 0}
+          empty={
+            <EmptyState
+              icon={IconFolderOff}
+              title={hasActiveFilters ? 'No categories match your filters' : 'No categories yet'}
+              action={
+                !hasActiveFilters && (
+                  <Button onClick={newCategory} leftSection={<IconCategoryPlus size={18} />}>
+                    New category
+                  </Button>
+                )
+              }
+            />
+          }
+        >
+          {(data) => (
+            <>
+              <DataTable
+                columns={columns}
+                rows={data.items}
+                getRowId={(c) => c.id}
+                selectedId={categoryId}
+                onRowClick={(c) => url.set({ categoryId: c.id, create: undefined }, { push: true })}
+                minWidth={640}
+              />
+              <TablePagination
+                page={data.page}
+                pageSize={data.pageSize}
+                totalCount={data.totalCount}
+                totalPages={data.totalPages}
+                onPageChange={(value) => url.set({ page: value })}
+                onPageSizeChange={(value) => url.set({ pageSize: value, page: undefined })}
+              />
+            </>
+          )}
+        </QueryState>
+      </DataPanel>
+
+      <CategoryDrawer
+        categoryId={categoryId}
+        creating={creating}
+        onClose={() => url.set({ categoryId: undefined, create: undefined })}
+      />
+    </>
   );
 }

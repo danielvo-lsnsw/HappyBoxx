@@ -23,6 +23,19 @@ export function useCategoriesQuery(params: ListCategoriesParams = {}) {
   });
 }
 
+/** All categories (max page size) for dropdowns and name lookups. */
+export function useAllCategoriesQuery() {
+  return useCategoriesQuery({ pageSize: 100 });
+}
+
+export function useCategoryQuery(id: string | undefined) {
+  return useQuery({
+    queryKey: categoryKeys.detail(id ?? ''),
+    queryFn: ({ signal }) => httpClient.get<Category>(`/categories/${id}`, undefined, signal),
+    enabled: !!id,
+  });
+}
+
 export function useCreateCategoryMutation() {
   const queryClient = useQueryClient();
   return useMutation({

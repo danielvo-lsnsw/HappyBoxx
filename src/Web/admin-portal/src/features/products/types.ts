@@ -1,4 +1,6 @@
-export type UnitOfMeasure = 'Piece' | 'Kilogram' | 'Gram' | 'Bunch' | 'Pack' | 'Box' | 'Carton';
+import type { UnitOfMeasure } from '@/lib/units';
+
+export type { UnitOfMeasure };
 
 export interface Product {
   id: string;

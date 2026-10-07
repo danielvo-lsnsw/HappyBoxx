@@ -1,8 +1,11 @@
+import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RouterProvider } from 'react-router';
 import { ApiError } from '@/lib/api/httpClient';
 import { router } from './router';
+import { theme } from './theme';
 
 function createQueryClient() {
   return new QueryClient({
@@ -21,8 +24,11 @@ export function App() {
   const [queryClient] = useState(createQueryClient);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <MantineProvider theme={theme} defaultColorScheme="auto">
+      <Notifications position="top-right" />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </MantineProvider>
   );
 }

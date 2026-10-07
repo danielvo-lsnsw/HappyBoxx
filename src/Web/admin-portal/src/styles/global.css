@@ -1,0 +1,91 @@
+/* App-wide styles that Mantine props can't express. Keep this file small. */
+
+.app-main {
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+  min-height: 100dvh;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dense data tables: strong header, readable rows. */
+.data-table thead th {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  background: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
+  white-space: nowrap;
+}
+
+.data-table tbody tr:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.brand {
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-sm);
+  width: 100%;
+  height: 42px;
+  padding: 0 var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+}
+
+.search-trigger:hover {
+  border-color: light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-2));
+}
+
+.user-trigger {
+  padding: 4px 8px;
+  border-radius: var(--mantine-radius-md);
+  min-height: 44px;
+}
+
+.user-trigger:hover,
+.alert-item:hover {
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .user-trigger-text {
+    display: none;
+  }
+}
+
+.alert-item {
+  display: block;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.kpi-card {
+  display: block;
+  height: 100%;
+  border-radius: var(--mantine-radius-md);
+  transition: transform 120ms ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+}
