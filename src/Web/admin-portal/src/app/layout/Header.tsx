@@ -2,6 +2,7 @@ import { ActionIcon, Box, Burger, Group, Text, ThemeIcon } from '@mantine/core';
 import { spotlight } from '@mantine/spotlight';
 import { IconLeaf, IconSearch } from '@tabler/icons-react';
 import { Link } from 'react-router';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 import { GlobalSearch, GlobalSearchTrigger } from './GlobalSearch';
 import { NotificationBell } from './NotificationBell';
 import { QuickActions } from './QuickActions';
@@ -13,6 +14,8 @@ interface HeaderProps {
 }
 
 export function Header({ mobileNavOpened, onToggleMobileNav }: HeaderProps) {
+  const { t } = useUiLanguage();
+
   return (
     <Group h="100%" px="md" gap="md" wrap="nowrap" justify="space-between">
       <Group gap="sm" wrap="nowrap">
@@ -21,10 +24,10 @@ export function Header({ mobileNavOpened, onToggleMobileNav }: HeaderProps) {
           onClick={onToggleMobileNav}
           hiddenFrom="sm"
           size="sm"
-          aria-label="Toggle navigation"
+          aria-label={t('Toggle navigation')}
         />
         <Group
-          renderRoot={(props) => <Link to="/" aria-label="HappyBoxx home" {...props} />}
+          renderRoot={(props) => <Link to="/" aria-label={t('HappyBoxx home')} {...props} />}
           gap={10}
           wrap="nowrap"
           className="brand"
@@ -37,7 +40,7 @@ export function Header({ mobileNavOpened, onToggleMobileNav }: HeaderProps) {
               HappyBoxx
             </Text>
             <Text size="xs" c="dimmed" lh={1.2}>
-              Warehouse Admin
+              {t('Warehouse Admin')}
             </Text>
           </Box>
         </Group>
@@ -48,7 +51,7 @@ export function Header({ mobileNavOpened, onToggleMobileNav }: HeaderProps) {
       </Box>
 
       <Group gap="xs" wrap="nowrap">
-        <ActionIcon hiddenFrom="sm" onClick={spotlight.open} aria-label="Search">
+        <ActionIcon hiddenFrom="sm" onClick={spotlight.open} aria-label={t('Search')}>
           <IconSearch size={22} stroke={1.75} />
         </ActionIcon>
         <QuickActions />

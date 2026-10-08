@@ -1,4 +1,5 @@
 import { Badge, type BadgeProps } from '@mantine/core';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 export type StatusTone = 'success' | 'warning' | 'danger' | 'neutral' | 'info';
 
@@ -17,6 +18,7 @@ interface StatusBadgeProps extends Omit<BadgeProps, 'color' | 'children'> {
 }
 
 export function StatusBadge({ tone, label, ...props }: StatusBadgeProps) {
+  const { t } = useUiLanguage();
   return (
     <Badge
       color={toneColors[tone]}
@@ -25,15 +27,16 @@ export function StatusBadge({ tone, label, ...props }: StatusBadgeProps) {
       leftSection={<span className="status-dot" aria-hidden />}
       {...props}
     >
-      {label}
+      {t(label)}
     </Badge>
   );
 }
 
 export function ActiveBadge({ isActive }: { isActive: boolean }) {
+  const { t } = useUiLanguage();
   return isActive ? (
-    <StatusBadge tone="success" label="Active" />
+    <StatusBadge tone="success" label={t('Active')} />
   ) : (
-    <StatusBadge tone="neutral" label="Inactive" />
+    <StatusBadge tone="neutral" label={t('Inactive')} />
   );
 }

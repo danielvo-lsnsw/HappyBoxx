@@ -9,16 +9,21 @@ import {
   IconTruckDelivery,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
-const soon = (
-  <Badge size="xs" variant="light" color="gray">
-    Soon
-  </Badge>
-);
+function SoonBadge() {
+  const { t } = useUiLanguage();
+  return (
+    <Badge size="xs" variant="light" color="gray">
+      {t('Soon')}
+    </Badge>
+  );
+}
 
 /** Global "+" menu to start common tasks from anywhere. */
 export function QuickActions() {
   const navigate = useNavigate();
+  const { t } = useUiLanguage();
   const go = (path: string) => void navigate(path);
 
   return (
@@ -26,40 +31,52 @@ export function QuickActions() {
       <Menu.Target>
         <div>
           <Button leftSection={<IconPlus size={18} />} visibleFrom="sm">
-            New
+            {t('Create new')}
           </Button>
-          <ActionIcon variant="filled" hiddenFrom="sm" aria-label="Quick actions">
+          <ActionIcon variant="filled" hiddenFrom="sm" aria-label={t('Quick actions')}>
             <IconPlus size={20} />
           </ActionIcon>
         </div>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Label>Catalog & stock</Menu.Label>
+        <Menu.Label>{t('Catalog & stock')}</Menu.Label>
         <Menu.Item
           leftSection={<IconSquarePlus size={18} />}
           onClick={() => go('/inventory/products?create=1')}
         >
-          New product
+          {t('New product')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconCategoryPlus size={18} />}
           onClick={() => go('/inventory/categories?create=1')}
         >
-          New category
+          {t('New category')}
         </Menu.Item>
         <Menu.Item leftSection={<IconStack2 size={18} />} onClick={() => go('/inventory/stock')}>
-          Adjust stock
+          {t('Adjust stock')}
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Label>Operations</Menu.Label>
-        <Menu.Item leftSection={<IconClipboardPlus size={18} />} rightSection={soon} disabled>
-          Create order
+        <Menu.Label>{t('Operations')}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconClipboardPlus size={18} />}
+          rightSection={<SoonBadge />}
+          disabled
+        >
+          {t('Create order')}
         </Menu.Item>
-        <Menu.Item leftSection={<IconTruckDelivery size={18} />} rightSection={soon} disabled>
-          Log delivery
+        <Menu.Item
+          leftSection={<IconTruckDelivery size={18} />}
+          rightSection={<SoonBadge />}
+          disabled
+        >
+          {t('Log delivery')}
         </Menu.Item>
-        <Menu.Item leftSection={<IconPackageImport size={18} />} rightSection={soon} disabled>
-          Receive shipment
+        <Menu.Item
+          leftSection={<IconPackageImport size={18} />}
+          rightSection={<SoonBadge />}
+          disabled
+        >
+          {t('Receive shipment')}
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>

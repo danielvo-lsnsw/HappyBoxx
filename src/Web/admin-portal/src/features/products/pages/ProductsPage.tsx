@@ -17,6 +17,7 @@ import { useUrlParams } from '@/lib/useUrlParams';
 import { useProductsQuery } from '../api';
 import { ProductDrawer } from '../components/ProductDrawer';
 import type { Product } from '../types';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const columns: DataTableColumn<Product>[] = [
   {
@@ -46,7 +47,12 @@ const columns: DataTableColumn<Product>[] = [
     ),
   },
   { key: 'category', header: 'Category', render: (p) => p.categoryName },
-  { key: 'unit', header: 'Unit', width: 110, render: (p) => unitLabels[p.unit].long },
+  {
+    key: 'unit',
+    header: 'Unit',
+    width: 110,
+    render: (p) => unitLabels[p.unit].long,
+  },
   {
     key: 'price',
     header: 'Price',
@@ -63,6 +69,7 @@ const columns: DataTableColumn<Product>[] = [
 ];
 
 export function ProductsPage() {
+  const { t } = useUiLanguage();
   const url = useUrlParams();
   const page = url.getNumber('page', 1);
   const pageSize = url.getNumber('pageSize', 20);
@@ -92,7 +99,7 @@ export function ProductsPage() {
   );
 
   const hasActiveFilters = !!search || !!categoryId || status !== 'all';
-  const title = categoryFromName?.name ?? 'Products';
+  const title = categoryFromName?.name ?? t('Products');
 
   const exportCsv = () => {
     const rows = products.data?.items ?? [];
@@ -115,21 +122,21 @@ export function ProductsPage() {
     <>
       <PageHeader
         title={title}
-        description="Manage the catalog: pricing, units and availability."
+        description={t('Manage the catalog: pricing, units and availability.')}
         actions={
           <>
-            <Tooltip label="Exports the rows currently shown">
+            <Tooltip label={t('Exports the rows currently shown')}>
               <Button
                 variant="default"
                 leftSection={<IconDownload size={18} />}
                 onClick={exportCsv}
                 disabled={!products.data?.items.length}
               >
-                Export
+                {t('Export')}
               </Button>
             </Tooltip>
             <Button leftSection={<IconPlus size={18} />} onClick={newProduct}>
-              New product
+              {t('New product')}
             </Button>
           </>
         }
@@ -148,16 +155,16 @@ export function ProductsPage() {
         }
       >
         <TextInput
-          aria-label="Search products"
-          placeholder="Search name or SKU"
+          aria-label={t('Search products')}
+          placeholder={t('Search name or SKU')}
           leftSection={<IconSearch size={18} />}
           value={search}
           onChange={(e) => url.set({ search: e.currentTarget.value, page: undefined })}
           w={260}
         />
         <Select
-          aria-label="Category"
-          placeholder="All categories"
+          aria-label={t('Category')}
+          placeholder={t('All categories')}
           clearable
           searchable
           data={(categories.data?.items ?? []).map((c) => ({ value: c.id, label: c.name }))}
@@ -166,15 +173,15 @@ export function ProductsPage() {
           w={220}
         />
         <SegmentedControl
-          aria-label="Status"
+          aria-label={t('Status')}
           value={status}
           onChange={(value) =>
             url.set({ status: value === 'all' ? undefined : value, page: undefined })
           }
           data={[
-            { value: 'all', label: 'All' },
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
+            { value: 'all', label: t('All') },
+            { value: 'active', label: t('Active') },
+            { value: 'inactive', label: t('Inactive') },
           ]}
         />
       </FilterBar>
@@ -186,16 +193,16 @@ export function ProductsPage() {
           empty={
             <EmptyState
               icon={IconPackageOff}
-              title={hasActiveFilters ? 'No products match your filters' : 'No products yet'}
+              title={t(hasActiveFilters ? 'No products match your filters' : 'No products yet')}
               description={
                 hasActiveFilters
-                  ? 'Try a different search or reset the filters.'
-                  : 'Add your first vegetable, fruit or container to start selling.'
+                  ? t('Try a different search or reset the filters.')
+                  : t('Add your first vegetable, fruit or container to start selling.')
               }
               action={
                 !hasActiveFilters && (
                   <Button leftSection={<IconPlus size={18} />} onClick={newProduct}>
-                    New product
+                    {t('New product')}
                   </Button>
                 )
               }
@@ -205,7 +212,14 @@ export function ProductsPage() {
           {(data) => (
             <>
               <DataTable
-                columns={columns}
+                columns={columns.map((column) => ({
+                  ...column,
+                  header: typeof column.header === 'string' ? t(column.header) : column.header,
+                  render:
+                    column.key === 'unit'
+                      ? (product: Product) => t(unitLabels[product.unit].long)
+                      : column.render,
+                }))}
                 rows={data.items}
                 getRowId={(p) => p.id}
                 selectedId={productId}

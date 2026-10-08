@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RouterProvider } from 'react-router';
 import { ApiError } from '@/lib/api/httpClient';
+import { UiLanguageProvider } from './localization/UiLanguage';
 import { router } from './router';
 import { theme } from './theme';
 
@@ -25,10 +26,12 @@ export function App() {
 
   return (
     <MantineProvider theme={theme} defaultColorScheme="auto">
-      <Notifications position="top-right" />
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <UiLanguageProvider>
+        <Notifications position="top-right" />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </UiLanguageProvider>
     </MantineProvider>
   );
 }

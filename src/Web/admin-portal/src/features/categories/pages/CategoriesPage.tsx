@@ -14,6 +14,7 @@ import { useUrlParams } from '@/lib/useUrlParams';
 import { useCategoriesQuery } from '../api';
 import { CategoryDrawer } from '../components/CategoryDrawer';
 import type { Category } from '../types';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const columns: DataTableColumn<Category>[] = [
   {
@@ -53,6 +54,7 @@ const columns: DataTableColumn<Category>[] = [
 ];
 
 export function CategoriesPage() {
+  const { t } = useUiLanguage();
   const url = useUrlParams();
   const page = url.getNumber('page', 1);
   const pageSize = url.getNumber('pageSize', 20);
@@ -75,11 +77,11 @@ export function CategoriesPage() {
   return (
     <>
       <PageHeader
-        title="Categories"
-        description="Group products so staff and buyers can find them quickly."
+        title={t('Categories')}
+        description={t('Group products so staff and buyers can find them quickly.')}
         actions={
           <Button leftSection={<IconCategoryPlus size={18} />} onClick={newCategory}>
-            New category
+            {t('New category')}
           </Button>
         }
       />
@@ -89,23 +91,23 @@ export function CategoriesPage() {
         onReset={() => url.set({ search: undefined, status: undefined, page: undefined })}
       >
         <TextInput
-          aria-label="Search categories"
-          placeholder="Search categories"
+          aria-label={t('Search categories')}
+          placeholder={t('Search categories')}
           leftSection={<IconSearch size={18} />}
           value={search}
           onChange={(e) => url.set({ search: e.currentTarget.value, page: undefined })}
           w={260}
         />
         <SegmentedControl
-          aria-label="Status"
+          aria-label={t('Status')}
           value={status}
           onChange={(value) =>
             url.set({ status: value === 'all' ? undefined : value, page: undefined })
           }
           data={[
-            { value: 'all', label: 'All' },
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
+            { value: 'all', label: t('All') },
+            { value: 'active', label: t('Active') },
+            { value: 'inactive', label: t('Inactive') },
           ]}
         />
       </FilterBar>
@@ -117,11 +119,11 @@ export function CategoriesPage() {
           empty={
             <EmptyState
               icon={IconFolderOff}
-              title={hasActiveFilters ? 'No categories match your filters' : 'No categories yet'}
+              title={t(hasActiveFilters ? 'No categories match your filters' : 'No categories yet')}
               action={
                 !hasActiveFilters && (
                   <Button onClick={newCategory} leftSection={<IconCategoryPlus size={18} />}>
-                    New category
+                    {t('New category')}
                   </Button>
                 )
               }
@@ -131,7 +133,10 @@ export function CategoriesPage() {
           {(data) => (
             <>
               <DataTable
-                columns={columns}
+                columns={columns.map((column) => ({
+                  ...column,
+                  header: typeof column.header === 'string' ? t(column.header) : column.header,
+                }))}
                 rows={data.items}
                 getRowId={(c) => c.id}
                 selectedId={categoryId}

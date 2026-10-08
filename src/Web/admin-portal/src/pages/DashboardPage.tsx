@@ -33,6 +33,7 @@ import { getStockStatus } from '@/features/inventory/stockStatus';
 import { useProductsQuery } from '@/features/products/api';
 import type { PagedResult } from '@/lib/api/httpClient';
 import { formatNumber } from '@/lib/format';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface KpiCardProps {
   label: string;
@@ -44,13 +45,14 @@ interface KpiCardProps {
 }
 
 function KpiCard({ label, query, icon: KpiIcon, color, to, hint }: KpiCardProps) {
+  const { t } = useUiLanguage();
   return (
     <UnstyledButton component={Link} to={to} className="kpi-card">
       <Card withBorder radius="md" p="lg" h="100%">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Stack gap={4}>
             <Text size="sm" c="dimmed" fw={600} tt="uppercase">
-              {label}
+              {t(label)}
             </Text>
             {query.isPending ? (
               <Skeleton height={36} width={80} />
@@ -60,7 +62,7 @@ function KpiCard({ label, query, icon: KpiIcon, color, to, hint }: KpiCardProps)
               </Text>
             )}
             <Text size="xs" c="dimmed">
-              {hint}
+              {t(hint)}
             </Text>
           </Stack>
           <ThemeIcon color={color} variant="light" size={48} radius="md">
@@ -80,6 +82,7 @@ const pipeline: { label: string; icon: Icon }[] = [
 ];
 
 export function DashboardPage() {
+  const { t } = useUiLanguage();
   const products = useProductsQuery({ pageSize: 1 });
   const categories = useCategoriesQuery({ pageSize: 1, isActive: true });
   const stock = useStockQuery({ pageSize: 1 });
@@ -87,7 +90,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageHeader title="Dashboard" description="Today's overview of the warehouse." />
+      <PageHeader title={t('Dashboard')} description={t("Today's overview of the warehouse.")} />
 
       <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="md">
         <KpiCard
@@ -127,9 +130,9 @@ export function DashboardPage() {
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md" mt="md">
         <Card withBorder radius="md" p={0}>
           <Group justify="space-between" p="md">
-            <Title order={4}>Needs restocking</Title>
+            <Title order={4}>{t('Needs restocking')}</Title>
             <Anchor component={Link} to="/inventory/stock?lowStockOnly=true" size="sm">
-              View all
+              {t('View all')}
             </Anchor>
           </Group>
           {lowStock.isPending ? (
@@ -151,13 +154,13 @@ export function DashboardPage() {
                 },
                 {
                   key: 'qty',
-                  header: 'On hand',
+                  header: t('On hand'),
                   align: 'right',
                   render: (s) => <span className="tabular">{formatNumber(s.quantityOnHand)}</span>,
                 },
                 {
                   key: 'status',
-                  header: 'Status',
+                  header: t('Status'),
                   render: (s) => {
                     const status = getStockStatus(s);
                     return <StatusBadge tone={status.tone} label={status.label} />;
@@ -167,16 +170,16 @@ export function DashboardPage() {
             />
           ) : (
             <Text c="dimmed" size="sm" px="md" pb="md">
-              All tracked items are above their reorder level.
+              {t('All tracked items are above their reorder level.')}
             </Text>
           )}
         </Card>
 
         <Card withBorder radius="md">
           <Group justify="space-between" mb="md">
-            <Title order={4}>Order pipeline</Title>
+            <Title order={4}>{t('Order pipeline')}</Title>
             <Badge variant="light" color="gray">
-              Coming soon
+              {t('Coming soon')}
             </Badge>
           </Group>
           <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
@@ -189,13 +192,13 @@ export function DashboardPage() {
                   —
                 </Text>
                 <Text size="sm" c="dimmed">
-                  {label}
+                  {t(label)}
                 </Text>
               </Card>
             ))}
           </SimpleGrid>
           <Text size="sm" c="dimmed" mt="md">
-            Live order counts and a Kanban board arrive with the Orders module.
+            {t('Live order counts and a Kanban board arrive with the Orders module.')}
           </Text>
         </Card>
       </SimpleGrid>

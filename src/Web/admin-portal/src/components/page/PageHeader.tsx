@@ -2,6 +2,7 @@ import { Anchor, Breadcrumbs, Group, Stack, Text, Title } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useActiveNavigation } from '@/app/navigation';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface PageHeaderProps {
   title: string;
@@ -12,6 +13,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   const { trail } = useActiveNavigation();
+  const { t } = useUiLanguage();
 
   return (
     <Stack gap={6} mb="lg">
@@ -20,11 +22,11 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
           {trail.map((item, index) =>
             item.path && index < trail.length - 1 ? (
               <Anchor key={item.label} component={Link} to={item.path} size="sm" c="dimmed">
-                {item.label}
+                {t(item.label)}
               </Anchor>
             ) : (
               <Text key={item.label} size="sm" c="dimmed">
-                {item.label}
+                {t(item.label)}
               </Text>
             ),
           )}

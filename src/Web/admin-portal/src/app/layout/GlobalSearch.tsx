@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import { flattenLeaves } from '@/app/navigation';
 import { useProductsQuery } from '@/features/products/api';
 import { formatCurrency } from '@/lib/format';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const pages = flattenLeaves().filter((item) => item.path);
 
@@ -16,12 +17,18 @@ function matchesQuery(query: string, ...values: (string | undefined)[]) {
 }
 
 export function GlobalSearchTrigger() {
+  const { t } = useUiLanguage();
+
   return (
-    <UnstyledButton className="search-trigger" onClick={spotlight.open} aria-label="Open search">
+    <UnstyledButton
+      className="search-trigger"
+      onClick={spotlight.open}
+      aria-label={t('Open search')}
+    >
       <Group gap="xs" wrap="nowrap">
         <IconSearch size={18} stroke={1.75} />
         <Text size="sm" c="dimmed" truncate>
-          Search SKUs, products, orders, customers…
+          {t('Search SKUs, products, orders, customers…')}
         </Text>
       </Group>
       <Kbd size="xs" visibleFrom="md">
@@ -33,6 +40,7 @@ export function GlobalSearchTrigger() {
 
 /** Global Ctrl/⌘+K search across pages and catalog data. */
 export function GlobalSearch() {
+  const { t } = useUiLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebouncedValue(query.trim(), 250);
@@ -43,7 +51,15 @@ export function GlobalSearch() {
   );
 
   const pageResults = query.trim()
-    ? pages.filter((p) => matchesQuery(query.trim(), p.label, p.description))
+    ? pages.filter((p) =>
+        matchesQuery(
+          query.trim(),
+          p.label,
+          p.description,
+          t(p.label),
+          p.description ? t(p.description) : undefined,
+        ),
+      )
     : pages.filter((p) => !p.planned);
   const productResults = searchProducts ? (products.data?.items ?? []) : [];
 
@@ -58,12 +74,12 @@ export function GlobalSearch() {
       maxHeight={480}
     >
       <Spotlight.Search
-        placeholder="Search SKUs, products, pages…"
+        placeholder={t('Search SKUs, products, pages…')}
         leftSection={<IconSearch size={20} stroke={1.75} />}
       />
       <Spotlight.ActionsList>
         {productResults.length > 0 && (
-          <Spotlight.ActionsGroup label="Products">
+          <Spotlight.ActionsGroup label={t('Products')}>
             {productResults.map((product) => (
               <Spotlight.Action
                 key={product.id}
@@ -81,19 +97,19 @@ export function GlobalSearch() {
           </Spotlight.ActionsGroup>
         )}
         {pageResults.length > 0 && (
-          <Spotlight.ActionsGroup label="Go to">
+          <Spotlight.ActionsGroup label={t('Go to')}>
             {pageResults.map((page) => {
               const PageIcon = page.icon;
               return (
                 <Spotlight.Action
                   key={page.path}
-                  label={page.label}
-                  description={page.description}
+                  label={t(page.label)}
+                  description={page.description ? t(page.description) : undefined}
                   leftSection={PageIcon && <PageIcon size={20} stroke={1.75} />}
                   rightSection={
                     page.planned && (
                       <Badge size="xs" variant="light" color="gray">
-                        Soon
+                        {t('Soon')}
                       </Badge>
                     )
                   }
@@ -106,8 +122,8 @@ export function GlobalSearch() {
         {productResults.length === 0 && pageResults.length === 0 && (
           <Spotlight.Empty>
             {products.isFetching
-              ? 'Searching…'
-              : 'No results. Order, batch and customer search arrives with those modules.'}
+              ? t('Searching…')
+              : t('No results. Order, batch and customer search arrives with those modules.')}
           </Spotlight.Empty>
         )}
       </Spotlight.ActionsList>

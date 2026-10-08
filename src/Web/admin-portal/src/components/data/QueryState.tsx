@@ -3,6 +3,7 @@ import { IconAlertTriangle, IconInbox } from '@tabler/icons-react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { EmptyState } from './EmptyState';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface QueryStateProps<T> {
   query: UseQueryResult<T>;
@@ -20,9 +21,11 @@ export function QueryState<T>({
   skeletonRows = 6,
   children,
 }: QueryStateProps<T>) {
+  const { t } = useUiLanguage();
+
   if (query.isPending) {
     return (
-      <Stack gap="xs" p="md" aria-busy="true" aria-label="Loading">
+      <Stack gap="xs" p="md" aria-busy="true" aria-label={t('Loading')}>
         {Array.from({ length: skeletonRows }, (_, i) => (
           <Skeleton key={i} height={36} radius="sm" />
         ))}
@@ -36,13 +39,13 @@ export function QueryState<T>({
         m="md"
         color="red"
         variant="light"
-        title="Couldn't load data"
+        title={t("Couldn't load data")}
         icon={<IconAlertTriangle />}
       >
         <Stack gap="sm" align="flex-start">
           {query.error.message}
           <Button size="sm" variant="white" color="red" onClick={() => void query.refetch()}>
-            Retry
+            {t('Retry')}
           </Button>
         </Stack>
       </Alert>
@@ -50,7 +53,7 @@ export function QueryState<T>({
   }
 
   if (isEmpty?.(query.data)) {
-    return empty ?? <EmptyState icon={IconInbox} title="Nothing here yet" />;
+    return empty ?? <EmptyState icon={IconInbox} title={t('Nothing here yet')} />;
   }
 
   return <>{children(query.data)}</>;

@@ -1,5 +1,6 @@
 import { Box, Divider, Drawer, Group, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import type { ReactNode } from 'react';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface DetailDrawerProps {
   opened: boolean;
@@ -22,6 +23,7 @@ export function DetailDrawer({
   children,
   footer,
 }: DetailDrawerProps) {
+  const { t } = useUiLanguage();
   return (
     <Drawer.Root opened={opened} onClose={onClose} position="right" size={540}>
       <Drawer.Overlay backgroundOpacity={0.25} blur={1} />
@@ -41,7 +43,7 @@ export function DetailDrawer({
                 </Text>
               )}
             </Stack>
-            <Drawer.CloseButton size="lg" aria-label="Close panel" />
+            <Drawer.CloseButton size="lg" aria-label={t('Close panel')} />
           </Drawer.Header>
           <Divider />
           <ScrollArea flex={1} type="auto">

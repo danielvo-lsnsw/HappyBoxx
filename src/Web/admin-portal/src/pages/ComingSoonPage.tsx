@@ -4,27 +4,31 @@ import { Link } from 'react-router';
 import { useActiveNavigation } from '@/app/navigation';
 import { EmptyState } from '@/components/data/EmptyState';
 import { PageHeader } from '@/components/page/PageHeader';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 export function ComingSoonPage() {
+  const { t } = useUiLanguage();
   const { active } = useActiveNavigation();
-  const title = active?.label ?? 'Coming soon';
+  const title = t(active?.label ?? 'Coming soon');
 
   return (
     <>
       <PageHeader
         title={title}
-        description={active?.description}
+        description={active?.description ? t(active.description) : undefined}
         actions={
           <Badge size="lg" variant="light" color="gray">
-            Planned
+            {t('Planned')}
           </Badge>
         }
       />
       <Paper withBorder radius="md">
         <EmptyState
           icon={active?.icon ?? IconRocket}
-          title={`${title} is on the roadmap`}
-          description="This module isn't available yet. The navigation is in place so you can see where it will live."
+          title={`${title}${t(' is on the roadmap')}`}
+          description={t(
+            "This module isn't available yet. The navigation is in place so you can see where it will live.",
+          )}
           action={
             <Button
               component={Link}
@@ -32,7 +36,7 @@ export function ComingSoonPage() {
               variant="light"
               leftSection={<IconArrowLeft size={18} />}
             >
-              Back to dashboard
+              {t('Back to dashboard')}
             </Button>
           }
         />

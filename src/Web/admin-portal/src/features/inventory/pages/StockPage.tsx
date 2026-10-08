@@ -16,6 +16,7 @@ import { useStockQuery } from '../api';
 import { StockDrawer } from '../components/StockDrawer';
 import { getStockStatus } from '../stockStatus';
 import type { StockItem } from '../types';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const columns: DataTableColumn<StockItem>[] = [
   {
@@ -67,6 +68,7 @@ const columns: DataTableColumn<StockItem>[] = [
 ];
 
 export function StockPage() {
+  const { t } = useUiLanguage();
   const url = useUrlParams();
   const page = url.getNumber('page', 1);
   const pageSize = url.getNumber('pageSize', 20);
@@ -99,17 +101,19 @@ export function StockPage() {
   return (
     <>
       <PageHeader
-        title="Stock Levels"
-        description="On-hand quantities across the warehouse. Click a row to receive or remove stock."
+        title={t('Stock Levels')}
+        description={t(
+          'On-hand quantities across the warehouse. Click a row to receive or remove stock.',
+        )}
         actions={
-          <Tooltip label="Exports the rows currently shown">
+          <Tooltip label={t('Exports the rows currently shown')}>
             <Button
               variant="default"
               leftSection={<IconDownload size={18} />}
               onClick={exportCsv}
               disabled={!stock.data?.items.length}
             >
-              Export
+              {t('Export')}
             </Button>
           </Tooltip>
         }
@@ -120,22 +124,22 @@ export function StockPage() {
         onReset={() => url.set({ sku: undefined, lowStockOnly: undefined, page: undefined })}
       >
         <TextInput
-          aria-label="Search SKU"
-          placeholder="Search SKU"
+          aria-label={t('Search SKU')}
+          placeholder={t('Search SKU')}
           leftSection={<IconSearch size={18} />}
           value={sku}
           onChange={(e) => url.set({ sku: e.currentTarget.value, page: undefined })}
           w={240}
         />
         <SegmentedControl
-          aria-label="Stock filter"
+          aria-label={t('Stock filter')}
           value={lowStockOnly ? 'low' : 'all'}
           onChange={(value) =>
             url.set({ lowStockOnly: value === 'low' ? true : undefined, page: undefined })
           }
           data={[
-            { value: 'all', label: 'All items' },
-            { value: 'low', label: 'Low / out of stock' },
+            { value: 'all', label: t('All items') },
+            { value: 'low', label: t('Low / out of stock') },
           ]}
         />
       </FilterBar>
@@ -147,13 +151,13 @@ export function StockPage() {
           empty={
             <EmptyState
               icon={IconStack2}
-              title={
-                hasActiveFilters ? 'No stock items match your filters' : 'No tracked stock yet'
-              }
+              title={t(
+                hasActiveFilters ? 'No stock items match your filters' : 'No tracked stock yet',
+              )}
               description={
                 hasActiveFilters
                   ? undefined
-                  : 'Open a product and choose "Start tracking" to record its stock level.'
+                  : t('Open a product and choose "Start tracking" to record its stock level.')
               }
             />
           }
@@ -161,7 +165,10 @@ export function StockPage() {
           {(data) => (
             <>
               <DataTable
-                columns={columns}
+                columns={columns.map((column) => ({
+                  ...column,
+                  header: typeof column.header === 'string' ? t(column.header) : column.header,
+                }))}
                 rows={data.items}
                 getRowId={(s) => s.productId}
                 selectedId={productId}

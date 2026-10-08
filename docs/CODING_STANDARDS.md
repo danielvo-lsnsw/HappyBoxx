@@ -222,6 +222,12 @@ src/
 - Accessibility: use semantic HTML, give every input a label, make everything keyboard-navigable, and use `alt` text on images.
 - Don't use `dangerouslySetInnerHTML`. Never store tokens in `localStorage`.
 
+### 4.4 UI language
+
+- The admin portal supports English and Vietnamese for user-facing UI labels, navigation, form validation, and UI messages. New or changed UI text **MUST** be added to both locales using the existing localization context.
+- English remains the canonical language for API contracts, database values and schema, domain enums, logs, CSV exports, printed PDFs, and other generated documents. UI localization **MUST NOT** translate or persist translated business data.
+- Keep translations at the presentation boundary. Do not send translated labels or values in API requests or store them in the database.
+
 ---
 
 ## 5. Testing

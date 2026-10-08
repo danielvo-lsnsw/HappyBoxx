@@ -23,6 +23,7 @@ import { handleSubmitError, notifySuccess } from '@/lib/forms';
 import { useAdjustStockMutation, useStockByProductQuery } from '../api';
 import { getStockStatus } from '../stockStatus';
 import type { StockItem } from '../types';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const QUICK_AMOUNTS = [1, 5, 10, 25, 50];
 
@@ -32,6 +33,7 @@ interface StockDrawerProps {
 }
 
 export function StockDrawer({ productId, onClose }: StockDrawerProps) {
+  const { t } = useUiLanguage();
   const stock = useStockByProductQuery(productId);
   const item = stock.data;
   const status = item && getStockStatus(item);
@@ -40,30 +42,30 @@ export function StockDrawer({ productId, onClose }: StockDrawerProps) {
     <DetailDrawer
       opened={!!productId}
       onClose={onClose}
-      title={item?.sku ?? 'Stock'}
-      subtitle={item && `Updated ${formatDateTime(item.updatedAtUtc)}`}
-      badge={status && <StatusBadge tone={status.tone} label={status.label} />}
+      title={item?.sku ?? t('Stock')}
+      subtitle={item && `${t('Updated')} ${formatDateTime(item.updatedAtUtc)}`}
+      badge={status && <StatusBadge tone={status.tone} label={t(status.label)} />}
     >
       {stock.isPending && <Skeleton height={300} radius="md" />}
       {stock.isError && (
-        <Alert color="red" title="Couldn't load stock">
+        <Alert color="red" title={t("Couldn't load stock")}>
           {stock.error.message}
         </Alert>
       )}
       {stock.isSuccess && !item && (
-        <Alert color="yellow" title="Not tracked">
-          This product isn't tracked in inventory yet.
+        <Alert color="yellow" title={t('Not tracked')}>
+          {t("This product isn't tracked in inventory yet.")}
         </Alert>
       )}
       {item && (
         <Stack gap="lg">
           <SimpleGrid cols={2}>
-            <Stat label="On hand" value={formatNumber(item.quantityOnHand)} />
-            <Stat label="Reorder level" value={formatNumber(item.reorderLevel)} />
+            <Stat label={t('On hand')} value={formatNumber(item.quantityOnHand)} />
+            <Stat label={t('Reorder level')} value={formatNumber(item.reorderLevel)} />
           </SimpleGrid>
           <AdjustStockForm key={item.id} item={item} />
           <Anchor component={Link} to={`/inventory/products?productId=${item.productId}`} size="sm">
-            View product details →
+            {t('View product details →')}
           </Anchor>
         </Stack>
       )}
@@ -85,6 +87,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function AdjustStockForm({ item }: { item: StockItem }) {
+  const { t } = useUiLanguage();
   const adjust = useAdjustStockMutation(item.productId);
   const form = useForm({
     mode: 'controlled',
@@ -92,9 +95,9 @@ function AdjustStockForm({ item }: { item: StockItem }) {
     validate: {
       quantity: (value, values) => {
         const qty = Number(value);
-        if (value === '' || qty <= 0) return 'Enter a quantity greater than 0';
+        if (value === '' || qty <= 0) return t('Enter a quantity greater than 0');
         if (values.direction === 'remove' && qty > item.quantityOnHand)
-          return `Only ${formatNumber(item.quantityOnHand)} on hand`;
+          return `${t('Only')} ${formatNumber(item.quantityOnHand)} ${t('on hand')}`;
         return null;
       },
     },
@@ -107,8 +110,8 @@ function AdjustStockForm({ item }: { item: StockItem }) {
     try {
       const updated = await adjust.mutateAsync({ quantityChange: receiving ? qty : -qty });
       notifySuccess(
-        `${item.sku}: ${receiving ? '+' : '−'}${formatNumber(qty)} → ${formatNumber(updated.quantityOnHand)} on hand`,
-        'Stock updated',
+        `${item.sku}: ${receiving ? '+' : '−'}${formatNumber(qty)} → ${formatNumber(updated.quantityOnHand)} ${t('on hand')}`,
+        t('Stock updated'),
       );
       form.setFieldValue('quantity', '');
     } catch (error) {
@@ -120,19 +123,19 @@ function AdjustStockForm({ item }: { item: StockItem }) {
     <Paper withBorder p="md" radius="md">
       <form onSubmit={submit} noValidate>
         <Stack gap="md">
-          <Title order={5}>Adjust stock</Title>
+          <Title order={5}>{t('Adjust stock')}</Title>
           <SegmentedControl
             fullWidth
             size="lg"
             data={[
-              { value: 'receive', label: 'Receive (+)' },
-              { value: 'remove', label: 'Remove (−)' },
+              { value: 'receive', label: t('Receive (+)') },
+              { value: 'remove', label: t('Remove (−)') },
             ]}
             {...form.getInputProps('direction')}
           />
           <NumberInput
             size="lg"
-            label="Quantity"
+            label={t('Quantity')}
             min={0}
             decimalScale={3}
             placeholder="0"
@@ -158,7 +161,7 @@ function AdjustStockForm({ item }: { item: StockItem }) {
             leftSection={receiving ? <IconPlus size={20} /> : <IconMinus size={20} />}
             loading={adjust.isPending}
           >
-            {receiving ? 'Receive stock' : 'Remove stock'}
+            {t(receiving ? 'Receive stock' : 'Remove stock')}
           </Button>
         </Stack>
       </form>

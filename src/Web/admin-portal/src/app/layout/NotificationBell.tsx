@@ -16,9 +16,11 @@ import { IconAlertTriangle, IconBell, IconCircleX } from '@tabler/icons-react';
 import { Link } from 'react-router';
 import { useStockQuery } from '@/features/inventory/api';
 import { formatNumber } from '@/lib/format';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 /** Time-sensitive alerts. Currently low/out-of-stock; expiry & delivery alerts join later. */
 export function NotificationBell() {
+  const { t } = useUiLanguage();
   const [opened, { close, toggle }] = useDisclosure(false);
   const lowStock = useStockQuery({ lowStockOnly: true, pageSize: 8 });
   const count = lowStock.data?.totalCount ?? 0;
@@ -35,7 +37,7 @@ export function NotificationBell() {
         >
           <ActionIcon
             onClick={toggle}
-            aria-label={`Notifications${count ? ` (${count} alerts)` : ''}`}
+            aria-label={`${t('Notifications')}${count ? ` (${count} ${t('alerts')})` : ''}`}
           >
             <IconBell size={22} stroke={1.75} />
           </ActionIcon>
@@ -43,21 +45,21 @@ export function NotificationBell() {
       </Popover.Target>
       <Popover.Dropdown p={0}>
         <Group justify="space-between" px="md" py="sm">
-          <Text fw={600}>Alerts</Text>
+          <Text fw={600}>{t('Alerts')}</Text>
           <Anchor
             component={Link}
             to="/inventory/stock?lowStockOnly=true"
             size="sm"
             onClick={close}
           >
-            View all
+            {t('View all')}
           </Anchor>
         </Group>
         <Divider />
         <ScrollArea.Autosize mah={360}>
           {count === 0 ? (
             <Text c="dimmed" size="sm" p="md">
-              You're all caught up.
+              {t("You're all caught up.")}
             </Text>
           ) : (
             <Stack gap={0}>
@@ -77,10 +79,10 @@ export function NotificationBell() {
                       </ThemeIcon>
                       <div>
                         <Text size="sm" fw={600}>
-                          {out ? 'Out of stock' : 'Low stock'}: {item.sku}
+                          {t(out ? 'Out of stock' : 'Low stock')}: {item.sku}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          {formatNumber(item.quantityOnHand)} on hand · reorder at{' '}
+                          {formatNumber(item.quantityOnHand)} {t('on hand · reorder at')}{' '}
                           {formatNumber(item.reorderLevel)}
                         </Text>
                       </div>
@@ -93,7 +95,9 @@ export function NotificationBell() {
         </ScrollArea.Autosize>
         <Divider />
         <Text size="xs" c="dimmed" px="md" py="xs">
-          Expiry and delivery alerts will appear here once batch tracking and logistics go live.
+          {t(
+            'Expiry and delivery alerts will appear here once batch tracking and logistics go live.',
+          )}
         </Text>
       </Popover.Dropdown>
     </Popover>

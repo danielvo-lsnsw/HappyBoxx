@@ -10,8 +10,10 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { navigation, useActiveNavigation, type NavItem } from '@/app/navigation';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface SidebarProps {
   /** Icon-rail mode (desktop only). */
@@ -20,20 +22,26 @@ interface SidebarProps {
   onNavigate: () => void;
 }
 
-const soonBadge = (
-  <Badge size="xs" variant="light" color="gray">
-    Soon
-  </Badge>
-);
-
 export function Sidebar({ collapsed, onToggleCollapsed, onNavigate }: SidebarProps) {
   const { trail, active } = useActiveNavigation();
+  const { t } = useUiLanguage();
+  const soonBadge = (
+    <Badge size="xs" variant="light" color="gray">
+      {t('Soon')}
+    </Badge>
+  );
 
   return (
     <Stack h="100%" gap={0}>
       <ScrollArea flex={1} type="auto" px={collapsed ? 'xs' : 'sm'} py="sm">
         {collapsed ? (
-          <RailItems items={navigation} trail={trail} onNavigate={onNavigate} />
+          <RailItems
+            items={navigation}
+            trail={trail}
+            onNavigate={onNavigate}
+            t={t}
+            soonBadge={soonBadge}
+          />
         ) : (
           <NavTree
             items={navigation}
@@ -41,16 +49,18 @@ export function Sidebar({ collapsed, onToggleCollapsed, onNavigate }: SidebarPro
             active={active}
             onNavigate={onNavigate}
             depth={0}
+            t={t}
+            soonBadge={soonBadge}
           />
         )}
       </ScrollArea>
       <Divider />
       <Box p="xs" visibleFrom="sm">
         {collapsed ? (
-          <Tooltip label="Expand sidebar" position="right">
+          <Tooltip label={t('Expand sidebar')} position="right">
             <ActionIcon
               onClick={onToggleCollapsed}
-              aria-label="Expand sidebar"
+              aria-label={t('Expand sidebar')}
               mx="auto"
               display="flex"
             >
@@ -60,7 +70,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, onNavigate }: SidebarPro
         ) : (
           <NavLink
             component="button"
-            label="Collapse sidebar"
+            label={t('Collapse sidebar')}
             leftSection={<IconLayoutSidebarLeftCollapse size={20} stroke={1.75} />}
             onClick={onToggleCollapsed}
           />
@@ -76,9 +86,11 @@ interface NavTreeProps {
   active?: NavItem;
   onNavigate: () => void;
   depth: number;
+  t: (text: string) => string;
+  soonBadge: ReactNode;
 }
 
-function NavTree({ items, trail, active, onNavigate, depth }: NavTreeProps) {
+function NavTree({ items, trail, active, onNavigate, depth, t, soonBadge }: NavTreeProps) {
   return items.map((item) => {
     const ItemIcon = item.icon;
     const icon = ItemIcon && <ItemIcon size={depth === 0 ? 20 : 18} stroke={1.75} />;
@@ -87,7 +99,7 @@ function NavTree({ items, trail, active, onNavigate, depth }: NavTreeProps) {
       return (
         <NavLink
           key={item.label}
-          label={item.label}
+          label={t(item.label)}
           leftSection={icon}
           defaultOpened={trail.includes(item)}
           childrenOffset={depth === 0 ? 'md' : 'sm'}
@@ -99,6 +111,8 @@ function NavTree({ items, trail, active, onNavigate, depth }: NavTreeProps) {
             active={active}
             onNavigate={onNavigate}
             depth={depth + 1}
+            t={t}
+            soonBadge={soonBadge}
           />
         </NavLink>
       );
@@ -109,7 +123,7 @@ function NavTree({ items, trail, active, onNavigate, depth }: NavTreeProps) {
         key={item.label}
         component={Link}
         to={item.path ?? '/'}
-        label={item.label}
+        label={t(item.label)}
         leftSection={icon}
         rightSection={item.planned ? soonBadge : undefined}
         active={item === active}
@@ -124,10 +138,14 @@ function RailItems({
   items,
   trail,
   onNavigate,
+  t,
+  soonBadge,
 }: {
   items: NavItem[];
   trail: NavItem[];
   onNavigate: () => void;
+  t: (text: string) => string;
+  soonBadge: ReactNode;
 }) {
   return (
     <Stack gap={4} align="center">
@@ -138,14 +156,14 @@ function RailItems({
 
         if (!item.children) {
           return (
-            <Tooltip key={item.label} label={item.label} position="right" withArrow>
+            <Tooltip key={item.label} label={t(item.label)} position="right" withArrow>
               <ActionIcon
                 component={Link}
                 to={item.path ?? '/'}
                 size={48}
                 variant={isActive ? 'light' : 'subtle'}
                 color={isActive ? undefined : 'gray'}
-                aria-label={item.label}
+                aria-label={t(item.label)}
                 onClick={onNavigate}
               >
                 {iconNode}
@@ -167,14 +185,19 @@ function RailItems({
                 size={48}
                 variant={isActive ? 'light' : 'subtle'}
                 color={isActive ? undefined : 'gray'}
-                aria-label={item.label}
+                aria-label={t(item.label)}
               >
                 {iconNode}
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Label>{item.label}</Menu.Label>
-              <RailMenuItems items={item.children} onNavigate={onNavigate} />
+              <Menu.Label>{t(item.label)}</Menu.Label>
+              <RailMenuItems
+                items={item.children}
+                onNavigate={onNavigate}
+                t={t}
+                soonBadge={soonBadge}
+              />
             </Menu.Dropdown>
           </Menu>
         );
@@ -183,14 +206,29 @@ function RailItems({
   );
 }
 
-function RailMenuItems({ items, onNavigate }: { items: NavItem[]; onNavigate: () => void }) {
+function RailMenuItems({
+  items,
+  onNavigate,
+  t,
+  soonBadge,
+}: {
+  items: NavItem[];
+  onNavigate: () => void;
+  t: (text: string) => string;
+  soonBadge: ReactNode;
+}) {
   return items.map((item) => {
     if (item.children) {
       return (
         <Box key={item.label}>
           <Menu.Divider />
-          <Menu.Label>{item.label}</Menu.Label>
-          <RailMenuItems items={item.children} onNavigate={onNavigate} />
+          <Menu.Label>{t(item.label)}</Menu.Label>
+          <RailMenuItems
+            items={item.children}
+            onNavigate={onNavigate}
+            t={t}
+            soonBadge={soonBadge}
+          />
         </Box>
       );
     }
@@ -204,7 +242,7 @@ function RailMenuItems({ items, onNavigate }: { items: NavItem[]; onNavigate: ()
         rightSection={item.planned ? soonBadge : undefined}
         onClick={onNavigate}
       >
-        {item.label}
+        {t(item.label)}
       </Menu.Item>
     );
   });

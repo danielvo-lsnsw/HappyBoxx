@@ -7,6 +7,7 @@ import type { Category } from '@/features/categories/types';
 import { notifySuccess } from '@/lib/forms';
 import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '../api';
 import type { Product } from '../types';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 import { ProductForm, type ProductFormValues } from './ProductForm';
 import { ProductStockSection } from './ProductStockSection';
 
@@ -37,6 +38,7 @@ export function ProductDrawer({
   onClose,
   onCreated,
 }: ProductDrawerProps) {
+  const { t } = useUiLanguage();
   const opened = creating || !!productId;
   const product = useProductQuery(creating ? undefined : productId);
   const categories = useAllCategoriesQuery();
@@ -47,9 +49,9 @@ export function ProductDrawer({
       <DetailDrawer
         opened={opened}
         onClose={onClose}
-        title="New product"
-        subtitle="Add an item to the catalog"
-        footer={<FormFooter onCancel={onClose} label="Create product" />}
+        title={t('New product')}
+        subtitle={t('Add an item to the catalog')}
+        footer={<FormFooter onCancel={onClose} label={t('Create product')} />}
       >
         <CreateProduct
           categories={categoryList}
@@ -66,27 +68,28 @@ export function ProductDrawer({
     <DetailDrawer
       opened={opened}
       onClose={onClose}
-      title={data?.name ?? 'Product'}
+      title={data?.name ?? t('Product')}
       subtitle={data && `${data.sku} · ${data.categoryName}`}
       badge={data && <ActiveBadge isActive={data.isActive} />}
-      footer={data && <FormFooter onCancel={onClose} label="Save changes" />}
+      footer={data && <FormFooter onCancel={onClose} label={t('Save changes')} />}
     >
       {product.isPending && <Skeleton height={320} radius="md" />}
       {product.isError && (
-        <Alert color="red" title="Couldn't load product">
+        <Alert color="red" title={t("Couldn't load product")}>
           {product.error.message}
         </Alert>
       )}
       {data && (
         <Stack gap="lg">
           <ProductStockSection product={data} />
-          <Divider label="Details" labelPosition="left" />
+          <Divider label={t('Details')} labelPosition="left" />
           <EditProduct key={data.id} product={data} categories={categoryList} />
-          <Divider label="Batches, supplier & price history" labelPosition="left" />
+          <Divider label={t('Batches, supplier & price history')} labelPosition="left" />
           <Alert variant="light" color="gray" icon={<IconInfoCircle />}>
             <Text size="sm">
-              Batch numbers, supplier details, storage requirements and price history will appear
-              here once the Purchasing module is live.
+              {t(
+                'Batch numbers, supplier details, storage requirements and price history will appear here once the Purchasing module is live.',
+              )}
             </Text>
           </Alert>
         </Stack>
@@ -96,10 +99,11 @@ export function ProductDrawer({
 }
 
 function FormFooter({ onCancel, label }: { onCancel: () => void; label: string }) {
+  const { t } = useUiLanguage();
   return (
     <>
       <Button variant="default" onClick={onCancel}>
-        Cancel
+        {t('Cancel')}
       </Button>
       <Button type="submit" form={FORM_ID}>
         {label}
@@ -117,6 +121,7 @@ function CreateProduct({
   defaultCategoryId?: string;
   onCreated: (product: Product) => void;
 }) {
+  const { t } = useUiLanguage();
   const createProduct = useCreateProductMutation();
 
   const handleSubmit = async (values: ProductFormValues) => {
@@ -128,13 +133,13 @@ function CreateProduct({
       unit: values.unit,
       price: Number(values.price),
     });
-    notifySuccess(`${created.name} was added to the catalog`, 'Product created');
+    notifySuccess(`${created.name} ${t('was added to the catalog')}`, t('Product created'));
     onCreated(created);
   };
 
   return (
     <Stack gap="md">
-      <Title order={5}>Product details</Title>
+      <Title order={5}>{t('Product details')}</Title>
       <ProductForm
         id={FORM_ID}
         mode="create"
@@ -147,6 +152,7 @@ function CreateProduct({
 }
 
 function EditProduct({ product, categories }: { product: Product; categories: Category[] }) {
+  const { t } = useUiLanguage();
   const updateProduct = useUpdateProductMutation(product.id);
 
   const handleSubmit = async (values: ProductFormValues) => {
@@ -158,7 +164,7 @@ function EditProduct({ product, categories }: { product: Product; categories: Ca
       price: Number(values.price),
       isActive: values.isActive,
     });
-    notifySuccess(`${updated.name} was updated`);
+    notifySuccess(`${updated.name} ${t('was updated')}`);
   };
 
   return (

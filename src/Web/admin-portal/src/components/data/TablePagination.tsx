@@ -1,4 +1,5 @@
 import { Group, Pagination, Select, Text } from '@mantine/core';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 const PAGE_SIZES = ['20', '50', '100'];
 
@@ -19,21 +20,22 @@ export function TablePagination({
   onPageChange,
   onPageSizeChange,
 }: TablePaginationProps) {
+  const { t } = useUiLanguage();
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalCount);
 
   return (
     <Group justify="space-between" px="md" py="sm" gap="md" wrap="wrap">
       <Text size="sm" c="dimmed" className="tabular">
-        Showing {from}–{to} of {totalCount}
+        {t('Showing')} {from}–{to} {t('of')} {totalCount}
       </Text>
       <Group gap="md">
         <Group gap="xs">
           <Text size="sm" c="dimmed">
-            Rows per page
+            {t('Rows per page')}
           </Text>
           <Select
-            aria-label="Rows per page"
+            aria-label={t('Rows per page')}
             data={PAGE_SIZES}
             value={String(pageSize)}
             onChange={(value) => value && onPageSizeChange(Number(value))}

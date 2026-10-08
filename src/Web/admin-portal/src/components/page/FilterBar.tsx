@@ -1,6 +1,7 @@
 import { Button, Group, Paper } from '@mantine/core';
 import { IconFilterOff } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
+import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 interface FilterBarProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ children, aside, hasActiveFilters, onReset }: FilterBarProps) {
+  const { t } = useUiLanguage();
   return (
     <Paper withBorder p="sm" radius="md">
       <Group justify="space-between" gap="sm" wrap="wrap">
@@ -18,7 +20,7 @@ export function FilterBar({ children, aside, hasActiveFilters, onReset }: Filter
           {children}
           {hasActiveFilters && onReset && (
             <Button variant="subtle" leftSection={<IconFilterOff size={18} />} onClick={onReset}>
-              Reset
+              {t('Reset')}
             </Button>
           )}
         </Group>
