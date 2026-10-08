@@ -3,6 +3,7 @@ import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RouterProvider } from 'react-router';
+import { AuthBoundary } from './auth/AuthProvider';
 import { ApiError } from '@/lib/api/httpClient';
 import { UiLanguageProvider } from './localization/UiLanguage';
 import { router } from './router';
@@ -27,10 +28,12 @@ export function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="auto">
       <UiLanguageProvider>
-        <Notifications position="top-right" />
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
+        <AuthBoundary>
+          <Notifications position="top-right" />
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </AuthBoundary>
       </UiLanguageProvider>
     </MantineProvider>
   );

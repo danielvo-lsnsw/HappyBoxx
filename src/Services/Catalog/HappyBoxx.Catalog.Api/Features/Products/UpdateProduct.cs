@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Catalog.Api.Domain.Products;
 using HappyBoxx.Catalog.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,6 +64,7 @@ internal sealed class UpdateProductEndpoint : IEndpoint
             .WithName("UpdateProduct")
             .WithTags(Tags.Products)
             .WithSummary("Update a product")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<UpdateProductRequest>();
 
     private static async Task<Results<Ok<ProductResponse>, ProblemHttpResult>> HandleAsync(

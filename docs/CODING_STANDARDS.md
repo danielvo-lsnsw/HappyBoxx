@@ -239,6 +239,12 @@ src/
 - Coverage target: 80% or more on `Domain/` and `Features/`. Treat coverage as a signal, not a goal.
 - Frontend: test behaviour, not implementation details. Query elements by role or label.
 
+### Automated test execution in AI-assisted sessions
+
+- Automated tests are opt-in during AI-assisted coding sessions. The agent **MUST NOT** run test commands (for example, `dotnet test`, `npm test`, or test executables) unless the user explicitly asks to run tests.
+- This does not waive the requirement to add or update appropriate tests with behavior changes. The agent may run non-test checks such as builds, type checks, lint, formatting checks, and static analysis unless the user says otherwise.
+- When tests were not explicitly requested, state that they were not run; do not imply they passed.
+
 ---
 
 ## 6. Git workflow
@@ -275,6 +281,7 @@ A change is done when it is merged to `main`, CI is green, it's covered by tests
 
 - Validate all input on the server, even if the UI already validates it.
 - Authentication and authorization (admin vs buyer) will be enforced **at every service** and at the gateway once added. Never rely on the UI hiding buttons.
+- Authentication and account lifecycle requirements are defined in [AUTHENTICATION_REQUIREMENTS.md](AUTHENTICATION_REQUIREMENTS.md).
 - Use parameterised queries only (EF Core).
 - HTTPS everywhere, with HSTS in non-development environments.
 - Use specific CORS origins, never `*` with credentials.

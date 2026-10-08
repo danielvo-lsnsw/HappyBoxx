@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Catalog.Api.Domain.Products;
 using HappyBoxx.Catalog.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,6 +70,7 @@ internal sealed class CreateProductEndpoint : IEndpoint
             .WithName("CreateProduct")
             .WithTags(Tags.Products)
             .WithSummary("Create a product")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<CreateProductRequest>();
 
     private static async Task<Results<CreatedAtRoute<ProductResponse>, ProblemHttpResult>> HandleAsync(

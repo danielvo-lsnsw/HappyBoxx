@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Inventory.Api.Domain;
 using HappyBoxx.Inventory.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,7 @@ internal sealed class CreateStockItemEndpoint : IEndpoint
             .WithName("CreateStockItem")
             .WithTags(Tags.Stock)
             .WithSummary("Start tracking stock for a product")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<CreateStockItemRequest>();
 
     private static async Task<Results<CreatedAtRoute<StockItemResponse>, ProblemHttpResult>> HandleAsync(

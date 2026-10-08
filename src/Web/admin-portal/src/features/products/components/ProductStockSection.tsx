@@ -23,9 +23,12 @@ import { handleSubmitError, notifySuccess } from '@/lib/forms';
 import { convertQuantity, formatQuantity, type UnitOfMeasure } from '@/lib/units';
 import type { Product } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 export function ProductStockSection({ product }: { product: Product }) {
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const stock = useStockByProductQuery(product.id);
   const [displayUnit, setDisplayUnit] = useState<UnitOfMeasure>(product.unit);
 
@@ -42,7 +45,13 @@ export function ProductStockSection({ product }: { product: Product }) {
   }
 
   if (!stock.data) {
-    return <StartTrackingForm product={product} />;
+    return isAdmin ? (
+      <StartTrackingForm product={product} />
+    ) : (
+      <Text c="dimmed" size="sm">
+        {t('Not tracked in inventory yet')}
+      </Text>
+    );
   }
 
   const item = stock.data;
@@ -81,9 +90,11 @@ export function ProductStockSection({ product }: { product: Product }) {
         <Text size="xs" c="dimmed">
           {t('Updated')} {formatDateTime(item.updatedAtUtc)}
         </Text>
-        <Anchor component={Link} to={`/inventory/stock?productId=${product.id}`} size="sm">
-          {t('Adjust stock →')}
-        </Anchor>
+        {isAdmin && (
+          <Anchor component={Link} to={`/inventory/stock?productId=${product.id}`} size="sm">
+            {t('Adjust stock →')}
+          </Anchor>
+        )}
       </Group>
     </Paper>
   );

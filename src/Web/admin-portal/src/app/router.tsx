@@ -1,6 +1,9 @@
 import { Center, Loader } from '@mantine/core';
 import { createBrowserRouter } from 'react-router';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { CustomerRegistrationPage } from '@/pages/CustomerRegistrationPage';
+import { AcceptStaffInvitationPage } from '@/pages/AcceptStaffInvitationPage';
+import { AuthenticationGate } from './auth/AuthProvider';
 import { AppLayout } from './layout/AppLayout';
 import { flattenLeaves } from './navigation';
 
@@ -13,8 +16,20 @@ const plannedRoutes = flattenLeaves()
 
 export const router = createBrowserRouter([
   {
+    path: '/register',
+    element: <CustomerRegistrationPage />,
+  },
+  {
+    path: '/accept-invitation',
+    element: <AcceptStaffInvitationPage />,
+  },
+  {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <AuthenticationGate>
+        <AppLayout />
+      </AuthenticationGate>
+    ),
     hydrateFallbackElement: (
       <Center h="100dvh">
         <Loader />
@@ -43,6 +58,11 @@ export const router = createBrowserRouter([
         path: 'inventory/stock',
         lazy: () =>
           import('@/features/inventory/pages/StockPage').then((m) => ({ Component: m.StockPage })),
+      },
+      {
+        path: 'admin/staff',
+        lazy: () =>
+          import('@/pages/StaffAccessPage').then((m) => ({ Component: m.StaffAccessPage })),
       },
       ...plannedRoutes,
       { path: '*', element: <NotFoundPage /> },

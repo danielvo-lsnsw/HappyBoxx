@@ -9,8 +9,6 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import {
-  IconBuildingWarehouse,
-  IconCheck,
   IconChevronDown,
   IconClockPlay,
   IconLanguage,
@@ -18,8 +16,11 @@ import {
   IconMoon,
   IconSettings,
   IconSun,
+  IconUsers,
 } from '@tabler/icons-react';
+import { Link } from 'react-router';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 function SoonBadge() {
   const { t } = useUiLanguage();
@@ -30,14 +31,18 @@ function SoonBadge() {
   );
 }
 
-// Placeholder identity until authentication is added.
-const currentUser = { name: 'Admin User', role: 'Warehouse manager', initials: 'AU' };
-const currentWarehouse = 'Main Warehouse';
-
 export function UserMenu() {
   const { setColorScheme } = useMantineColorScheme();
   const { language, setLanguage, t } = useUiLanguage();
+  const { user, signOut } = useAuth();
   const isDark = useComputedColorScheme('light') === 'dark';
+  const name = user?.name ?? '';
+  const initials = name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   return (
     <Menu position="bottom-end" width={260} shadow="md">
@@ -45,14 +50,14 @@ export function UserMenu() {
         <UnstyledButton className="user-trigger" aria-label={t('Account menu')}>
           <Group gap="xs" wrap="nowrap">
             <Avatar color="green" radius="xl" size={36}>
-              {currentUser.initials}
+              {initials}
             </Avatar>
             <div className="user-trigger-text">
               <Text size="sm" fw={600} lh={1.2}>
-                {currentUser.name}
+                {name}
               </Text>
               <Text size="xs" c="dimmed" lh={1.2}>
-                {currentWarehouse}
+                {user ? t(user.role) : ''}
               </Text>
             </div>
             <IconChevronDown size={16} />
@@ -61,20 +66,14 @@ export function UserMenu() {
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Label>
-          {currentUser.name} · {t(currentUser.role)}
+          {name} · {user?.email}
         </Menu.Label>
         <Menu.Divider />
-        <Menu.Label>{t('Warehouse')}</Menu.Label>
-        <Menu.Item
-          leftSection={<IconBuildingWarehouse size={18} />}
-          rightSection={<IconCheck size={16} />}
-        >
-          {currentWarehouse}
-        </Menu.Item>
-        <Menu.Item disabled rightSection={<SoonBadge />}>
-          {t('Switch warehouse')}
-        </Menu.Item>
-        <Menu.Divider />
+        {user?.role === 'Admin' && (
+          <Menu.Item component={Link} to="/admin/staff" leftSection={<IconUsers size={18} />}>
+            {t('Staff access')}
+          </Menu.Item>
+        )}
         <Menu.Item leftSection={<IconClockPlay size={18} />} rightSection={<SoonBadge />} disabled>
           {t('Clock in / out')}
         </Menu.Item>
@@ -99,7 +98,7 @@ export function UserMenu() {
           {t('Account settings')}
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item leftSection={<IconLogout size={18} />} color="red" disabled>
+        <Menu.Item leftSection={<IconLogout size={18} />} color="red" onClick={signOut}>
           {t('Sign out')}
         </Menu.Item>
       </Menu.Dropdown>

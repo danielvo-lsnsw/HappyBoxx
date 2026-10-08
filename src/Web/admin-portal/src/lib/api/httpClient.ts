@@ -1,3 +1,5 @@
+import { getApiAuthHeaders } from '@/app/auth/apiAuth';
+
 /** RFC 9457 problem details as returned by every HappyBoxx service. */
 export interface ProblemDetails {
   type?: string;
@@ -51,11 +53,13 @@ async function request<T>(
   body?: unknown,
   signal?: AbortSignal,
 ): Promise<T> {
+  const authHeaders = await getApiAuthHeaders();
   const response = await fetch(url, {
     method,
     signal,
     headers: {
       Accept: 'application/json',
+      ...authHeaders,
       ...(body !== undefined && { 'Content-Type': 'application/json' }),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,

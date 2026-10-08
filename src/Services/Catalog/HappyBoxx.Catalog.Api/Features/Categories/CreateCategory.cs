@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Catalog.Api.Domain.Categories;
 using HappyBoxx.Catalog.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,7 @@ internal sealed class CreateCategoryEndpoint : IEndpoint
             .WithName("CreateCategory")
             .WithTags(Tags.Categories)
             .WithSummary("Create a category")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<CreateCategoryRequest>();
 
     private static async Task<Results<CreatedAtRoute<CategoryResponse>, ProblemHttpResult>> HandleAsync(

@@ -1,4 +1,4 @@
-import { Alert, Button, Skeleton, Stack, Switch, Textarea, TextInput } from '@mantine/core';
+import { Alert, Button, Skeleton, Stack, Switch, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ActiveBadge } from '@/components/data/StatusBadge';
 import { DetailDrawer } from '@/components/page/DetailDrawer';
@@ -13,15 +13,16 @@ const FORM_ID = 'category-form';
 interface CategoryDrawerProps {
   categoryId?: string;
   creating: boolean;
+  canEdit: boolean;
   onClose: () => void;
 }
 
-export function CategoryDrawer({ categoryId, creating, onClose }: CategoryDrawerProps) {
+export function CategoryDrawer({ categoryId, creating, canEdit, onClose }: CategoryDrawerProps) {
   const { t } = useUiLanguage();
   const category = useCategoryQuery(creating ? undefined : categoryId);
   const data = category.data;
 
-  const footer = (creating || data) && (
+  const footer = canEdit && (creating || data) && (
     <>
       <Button variant="default" onClick={onClose}>
         {t('Cancel')}
@@ -51,8 +52,13 @@ export function CategoryDrawer({ categoryId, creating, onClose }: CategoryDrawer
         <Alert color="red" title={t("Couldn't load category")}>
           {category.error.message}
         </Alert>
-      ) : (
+      ) : canEdit ? (
         <CategoryForm key={category.data.id} category={category.data} onDone={onClose} />
+      ) : (
+        <Stack gap="sm">
+          <Text fw={600}>{category.data.name}</Text>
+          {category.data.description && <Text c="dimmed">{category.data.description}</Text>}
+        </Stack>
       )}
     </DetailDrawer>
   );

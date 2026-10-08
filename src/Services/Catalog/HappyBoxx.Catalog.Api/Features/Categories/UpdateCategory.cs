@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Catalog.Api.Domain.Categories;
 using HappyBoxx.Catalog.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,7 @@ internal sealed class UpdateCategoryEndpoint : IEndpoint
             .WithName("UpdateCategory")
             .WithTags(Tags.Categories)
             .WithSummary("Update a category")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<UpdateCategoryRequest>();
 
     private static async Task<Results<Ok<CategoryResponse>, ProblemHttpResult>> HandleAsync(

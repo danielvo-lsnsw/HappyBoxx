@@ -8,6 +8,7 @@ import { notifySuccess } from '@/lib/forms';
 import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '../api';
 import type { Product } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 import { ProductForm, type ProductFormValues } from './ProductForm';
 import { ProductStockSection } from './ProductStockSection';
 
@@ -39,12 +40,14 @@ export function ProductDrawer({
   onCreated,
 }: ProductDrawerProps) {
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const opened = creating || !!productId;
   const product = useProductQuery(creating ? undefined : productId);
   const categories = useAllCategoriesQuery();
   const categoryList = categories.data?.items ?? [];
 
-  if (creating) {
+  if (creating && isAdmin) {
     return (
       <DetailDrawer
         opened={opened}
@@ -71,7 +74,7 @@ export function ProductDrawer({
       title={data?.name ?? t('Product')}
       subtitle={data && `${data.sku} · ${data.categoryName}`}
       badge={data && <ActiveBadge isActive={data.isActive} />}
-      footer={data && <FormFooter onCancel={onClose} label={t('Save changes')} />}
+      footer={data && isAdmin && <FormFooter onCancel={onClose} label={t('Save changes')} />}
     >
       {product.isPending && <Skeleton height={320} radius="md" />}
       {product.isError && (
@@ -82,8 +85,14 @@ export function ProductDrawer({
       {data && (
         <Stack gap="lg">
           <ProductStockSection product={data} />
-          <Divider label={t('Details')} labelPosition="left" />
-          <EditProduct key={data.id} product={data} categories={categoryList} />
+          {isAdmin ? (
+            <>
+              <Divider label={t('Details')} labelPosition="left" />
+              <EditProduct key={data.id} product={data} categories={categoryList} />
+            </>
+          ) : (
+            <Text>{data.description}</Text>
+          )}
           <Divider label={t('Batches, supplier & price history')} labelPosition="left" />
           <Alert variant="light" color="gray" icon={<IconInfoCircle />}>
             <Text size="sm">

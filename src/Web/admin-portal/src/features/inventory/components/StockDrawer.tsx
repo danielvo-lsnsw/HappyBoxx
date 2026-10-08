@@ -24,6 +24,7 @@ import { useAdjustStockMutation, useStockByProductQuery } from '../api';
 import { getStockStatus } from '../stockStatus';
 import type { StockItem } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 const QUICK_AMOUNTS = [1, 5, 10, 25, 50];
 
@@ -34,6 +35,8 @@ interface StockDrawerProps {
 
 export function StockDrawer({ productId, onClose }: StockDrawerProps) {
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const stock = useStockByProductQuery(productId);
   const item = stock.data;
   const status = item && getStockStatus(item);
@@ -63,7 +66,7 @@ export function StockDrawer({ productId, onClose }: StockDrawerProps) {
             <Stat label={t('On hand')} value={formatNumber(item.quantityOnHand)} />
             <Stat label={t('Reorder level')} value={formatNumber(item.reorderLevel)} />
           </SimpleGrid>
-          <AdjustStockForm key={item.id} item={item} />
+          {isAdmin && <AdjustStockForm key={item.id} item={item} />}
           <Anchor component={Link} to={`/inventory/products?productId=${item.productId}`} size="sm">
             {t('View product details →')}
           </Anchor>

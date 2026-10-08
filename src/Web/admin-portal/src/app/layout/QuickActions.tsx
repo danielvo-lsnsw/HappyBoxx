@@ -10,6 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 function SoonBadge() {
   const { t } = useUiLanguage();
@@ -24,6 +25,8 @@ function SoonBadge() {
 export function QuickActions() {
   const navigate = useNavigate();
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const go = (path: string) => void navigate(path);
 
   return (
@@ -39,23 +42,30 @@ export function QuickActions() {
         </div>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Label>{t('Catalog & stock')}</Menu.Label>
-        <Menu.Item
-          leftSection={<IconSquarePlus size={18} />}
-          onClick={() => go('/inventory/products?create=1')}
-        >
-          {t('New product')}
-        </Menu.Item>
-        <Menu.Item
-          leftSection={<IconCategoryPlus size={18} />}
-          onClick={() => go('/inventory/categories?create=1')}
-        >
-          {t('New category')}
-        </Menu.Item>
-        <Menu.Item leftSection={<IconStack2 size={18} />} onClick={() => go('/inventory/stock')}>
-          {t('Adjust stock')}
-        </Menu.Item>
-        <Menu.Divider />
+        {isAdmin && (
+          <>
+            <Menu.Label>{t('Catalog & stock')}</Menu.Label>
+            <Menu.Item
+              leftSection={<IconSquarePlus size={18} />}
+              onClick={() => go('/inventory/products?create=1')}
+            >
+              {t('New product')}
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<IconCategoryPlus size={18} />}
+              onClick={() => go('/inventory/categories?create=1')}
+            >
+              {t('New category')}
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<IconStack2 size={18} />}
+              onClick={() => go('/inventory/stock')}
+            >
+              {t('Adjust stock')}
+            </Menu.Item>
+            <Menu.Divider />
+          </>
+        )}
         <Menu.Label>{t('Operations')}</Menu.Label>
         <Menu.Item
           leftSection={<IconClipboardPlus size={18} />}

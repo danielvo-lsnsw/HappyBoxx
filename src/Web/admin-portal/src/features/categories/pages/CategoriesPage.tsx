@@ -15,6 +15,7 @@ import { useCategoriesQuery } from '../api';
 import { CategoryDrawer } from '../components/CategoryDrawer';
 import type { Category } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 const columns: DataTableColumn<Category>[] = [
   {
@@ -55,6 +56,8 @@ const columns: DataTableColumn<Category>[] = [
 
 export function CategoriesPage() {
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const url = useUrlParams();
   const page = url.getNumber('page', 1);
   const pageSize = url.getNumber('pageSize', 20);
@@ -80,9 +83,11 @@ export function CategoriesPage() {
         title={t('Categories')}
         description={t('Group products so staff and buyers can find them quickly.')}
         actions={
-          <Button leftSection={<IconCategoryPlus size={18} />} onClick={newCategory}>
-            {t('New category')}
-          </Button>
+          isAdmin && (
+            <Button leftSection={<IconCategoryPlus size={18} />} onClick={newCategory}>
+              {t('New category')}
+            </Button>
+          )
         }
       />
 
@@ -121,7 +126,8 @@ export function CategoriesPage() {
               icon={IconFolderOff}
               title={t(hasActiveFilters ? 'No categories match your filters' : 'No categories yet')}
               action={
-                !hasActiveFilters && (
+                !hasActiveFilters &&
+                isAdmin && (
                   <Button onClick={newCategory} leftSection={<IconCategoryPlus size={18} />}>
                     {t('New category')}
                   </Button>
@@ -158,7 +164,8 @@ export function CategoriesPage() {
 
       <CategoryDrawer
         categoryId={categoryId}
-        creating={creating}
+        creating={creating && isAdmin}
+        canEdit={isAdmin}
         onClose={() => url.set({ categoryId: undefined, create: undefined })}
       />
     </>

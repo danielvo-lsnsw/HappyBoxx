@@ -5,6 +5,7 @@ using HappyBoxx.BuildingBlocks.Results;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Inventory.Api.Domain;
 using HappyBoxx.Inventory.Api.Infrastructure.Persistence;
+using HappyBoxx.ServiceDefaults.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,6 +55,7 @@ internal sealed class AdjustStockEndpoint : IEndpoint
             .WithName("AdjustStock")
             .WithTags(Tags.Stock)
             .WithSummary("Adjust the stock level of a product")
+            .RequireAuthorization(HappyBoxxPolicies.Admin)
             .WithRequestValidation<AdjustStockRequest>();
 
     private static async Task<Results<Ok<StockItemResponse>, ProblemHttpResult>> HandleAsync(

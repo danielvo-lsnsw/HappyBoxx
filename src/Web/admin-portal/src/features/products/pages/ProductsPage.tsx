@@ -18,6 +18,7 @@ import { useProductsQuery } from '../api';
 import { ProductDrawer } from '../components/ProductDrawer';
 import type { Product } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 
 const columns: DataTableColumn<Product>[] = [
   {
@@ -70,6 +71,8 @@ const columns: DataTableColumn<Product>[] = [
 
 export function ProductsPage() {
   const { t } = useUiLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const url = useUrlParams();
   const page = url.getNumber('page', 1);
   const pageSize = url.getNumber('pageSize', 20);
@@ -135,9 +138,11 @@ export function ProductsPage() {
                 {t('Export')}
               </Button>
             </Tooltip>
-            <Button leftSection={<IconPlus size={18} />} onClick={newProduct}>
-              {t('New product')}
-            </Button>
+            {isAdmin && (
+              <Button leftSection={<IconPlus size={18} />} onClick={newProduct}>
+                {t('New product')}
+              </Button>
+            )}
           </>
         }
       />
@@ -200,7 +205,8 @@ export function ProductsPage() {
                   : t('Add your first vegetable, fruit or container to start selling.')
               }
               action={
-                !hasActiveFilters && (
+                !hasActiveFilters &&
+                isAdmin && (
                   <Button leftSection={<IconPlus size={18} />} onClick={newProduct}>
                     {t('New product')}
                   </Button>
@@ -240,7 +246,7 @@ export function ProductsPage() {
 
       <ProductDrawer
         productId={productId}
-        creating={creating}
+        creating={creating && isAdmin}
         defaultCategoryId={categoryId}
         onClose={() => url.set({ productId: undefined, create: undefined })}
         onCreated={(product) => url.set({ productId: product.id, create: undefined })}
