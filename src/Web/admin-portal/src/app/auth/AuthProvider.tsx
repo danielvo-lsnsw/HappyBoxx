@@ -1,7 +1,7 @@
 import { InteractionRequiredAuthError, type AccountInfo } from '@azure/msal-browser';
 import { MsalProvider, useMsal } from '@azure/msal-react';
 import { Center, Loader } from '@mantine/core';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useEffectEvent, useMemo, useState, type ReactNode } from 'react';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 import { apiScope, msalInstance } from './authConfig';
 import { setApiAuthHeadersProvider } from './apiAuth';
@@ -98,6 +98,7 @@ function EntraAuthProvider({ children }: { children: ReactNode }) {
   } | null>(null);
   const user = account && userState?.subject === account.homeAccountId ? userState.user : null;
   const isReady = inProgress === 'none' && (!account || user !== null);
+  const accountSubject = account?.homeAccountId;
 
   useEffect(() => {
     if (!instance.getActiveAccount() && accounts[0]) {
@@ -105,46 +106,76 @@ function EntraAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [accounts, instance]);
 
+  const loadAccountAccess = useEffectEvent(async (subject: string, isCurrent: () => boolean) => {
+    const activeAccount =
+      instance.getActiveAccount() ??
+      accounts.find((candidate) => candidate.homeAccountId === subject);
+    if (!activeAccount || activeAccount.homeAccountId !== subject) {
+      return;
+    }
+
+    let accessToken: string;
+    try {
+      const result = await instance.acquireTokenSilent({
+        account: activeAccount,
+        scopes: [apiScope],
+      });
+      accessToken = result.accessToken;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Could not acquire a HappyBoxx API access token.', error);
+      }
+      if (isCurrent()) {
+        setUserState({
+          subject,
+          user: toAuthenticatedUser(activeAccount, 'Unassigned'),
+        });
+      }
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/identity/access/current', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!response.ok && import.meta.env.DEV) {
+        console.error(`HappyBoxx access check returned HTTP ${response.status}.`);
+      }
+      const access = response.ok
+        ? ((await response.json()) as { isActive: boolean; role: string })
+        : { isActive: false, role: 'Unassigned' };
+      const role: HappyBoxxRole =
+        access.isActive &&
+        (access.role === 'Admin' || access.role === 'Order Creator' || access.role === 'Customer')
+          ? access.role
+          : 'Unassigned';
+      if (isCurrent()) {
+        setUserState({ subject, user: toAuthenticatedUser(activeAccount, role) });
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Could not check HappyBoxx account access.', error);
+      }
+      if (isCurrent()) {
+        setUserState({
+          subject,
+          user: toAuthenticatedUser(activeAccount, 'Unassigned'),
+        });
+      }
+    }
+  });
+
   useEffect(() => {
-    if (!account) {
+    if (!accountSubject || inProgress !== 'none') {
       return;
     }
 
     let current = true;
-    void instance
-      .acquireTokenSilent({ account, scopes: [apiScope] })
-      .then(async (result) => {
-        const response = await fetch('/api/v1/identity/access/current', {
-          headers: { Authorization: `Bearer ${result.accessToken}` },
-        });
-        const access = response.ok
-          ? ((await response.json()) as { isActive: boolean; role: string })
-          : { isActive: false, role: 'Unassigned' };
-        const role: HappyBoxxRole =
-          access.isActive &&
-          (access.role === 'Admin' || access.role === 'Order Creator' || access.role === 'Customer')
-            ? access.role
-            : 'Unassigned';
-        if (current) {
-          setUserState({
-            subject: account.homeAccountId,
-            user: toAuthenticatedUser(account, role),
-          });
-        }
-      })
-      .catch(() => {
-        if (current) {
-          setUserState({
-            subject: account.homeAccountId,
-            user: toAuthenticatedUser(account, 'Unassigned'),
-          });
-        }
-      });
-
+    void Promise.resolve().then(() => loadAccountAccess(accountSubject, () => current));
     return () => {
       current = false;
     };
-  }, [account, instance]);
+  }, [accountSubject, inProgress, instance]);
 
   useEffect(() => {
     setApiAuthHeadersProvider(async (): Promise<Record<string, string>> => {
@@ -178,7 +209,6 @@ function EntraAuthProvider({ children }: { children: ReactNode }) {
         void instance.loginRedirect({
           scopes: [apiScope],
           prompt: 'login',
-          redirectUri: `${window.location.origin}${window.location.pathname}${window.location.search}`,
         });
       },
       signOut: () => {
@@ -188,7 +218,6 @@ function EntraAuthProvider({ children }: { children: ReactNode }) {
         void instance.loginRedirect({
           scopes: [apiScope],
           prompt: 'create',
-          redirectUri: `${window.location.origin}${window.location.pathname}${window.location.search}`,
         });
       },
       signInAsDevelopmentRole: () => undefined,

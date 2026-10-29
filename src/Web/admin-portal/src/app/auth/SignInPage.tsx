@@ -1,6 +1,5 @@
-import { Anchor, Button, Center, Container, Paper, Stack, Text, Title } from '@mantine/core';
+import { Button, Center, Container, Paper, Stack, Text, Title } from '@mantine/core';
 import { IconAt, IconShieldLock } from '@tabler/icons-react';
-import { Link } from 'react-router';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 import type { HappyBoxxRole } from './AuthContext';
 import { authMode } from './authConfig';
@@ -44,18 +43,12 @@ export function SignInPage({ onSignIn, onDevelopmentSignIn }: SignInPageProps) {
                 <Button variant="default" onClick={() => onDevelopmentSignIn('Order Creator')}>
                   {t('Continue as local Order Creator')}
                 </Button>
-                <Button variant="subtle" onClick={() => onDevelopmentSignIn('Customer')}>
-                  {t('Continue as local Customer')}
-                </Button>
               </>
             ) : (
               <Button leftSection={<IconAt size={18} />} onClick={onSignIn}>
                 {t('Sign in with email')}
               </Button>
             )}
-            <Anchor component={Link} to="/register" ta="center" size="sm">
-              {t('Create customer account')}
-            </Anchor>
           </Stack>
         </Paper>
       </Container>

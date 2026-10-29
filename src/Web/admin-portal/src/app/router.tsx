@@ -1,7 +1,6 @@
 import { Center, Loader } from '@mantine/core';
 import { createBrowserRouter } from 'react-router';
 import { NotFoundPage } from '@/pages/NotFoundPage';
-import { CustomerRegistrationPage } from '@/pages/CustomerRegistrationPage';
 import { AcceptStaffInvitationPage } from '@/pages/AcceptStaffInvitationPage';
 import { AuthenticationGate } from './auth/AuthProvider';
 import { AppLayout } from './layout/AppLayout';
@@ -15,10 +14,6 @@ const plannedRoutes = flattenLeaves()
   .map((item) => ({ path: item.path, lazy: comingSoon }));
 
 export const router = createBrowserRouter([
-  {
-    path: '/register',
-    element: <CustomerRegistrationPage />,
-  },
   {
     path: '/accept-invitation',
     element: <AcceptStaffInvitationPage />,

@@ -55,10 +55,13 @@ public static class HappyBoxxAuthentication
         {
             var authority = configuration["Authentication:Authority"];
             var audience = configuration["Authentication:Audience"];
-            if (string.IsNullOrWhiteSpace(authority) || string.IsNullOrWhiteSpace(audience))
+            var validIssuer = configuration["Authentication:ValidIssuer"];
+            if (string.IsNullOrWhiteSpace(authority)
+                || string.IsNullOrWhiteSpace(audience)
+                || string.IsNullOrWhiteSpace(validIssuer))
             {
                 throw new InvalidOperationException(
-                    "Authentication:Authority and Authentication:Audience must be configured outside Development mode.");
+                    "Authentication:Authority, Authentication:Audience, and Authentication:ValidIssuer must be configured outside Development mode.");
             }
 
             authentication.AddJwtBearer(options =>
@@ -69,6 +72,7 @@ public static class HappyBoxxAuthentication
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidIssuer = validIssuer,
                     NameClaimType = "name",
                     RoleClaimType = "roles",
                 };
@@ -87,12 +91,12 @@ public static class HappyBoxxAuthentication
                 .RequireRole("Admin"));
         });
 
-            if (roleSource == "IdentityService")
-            {
-                services.AddHttpContextAccessor();
-                services.AddHttpClient("identity-access").AddServiceDiscovery();
-                services.AddTransient<IClaimsTransformation, IdentityServiceRoleClaimsTransformation>();
-            }
+        if (roleSource == "IdentityService")
+        {
+            services.AddHttpContextAccessor();
+            services.AddHttpClient("identity-access").AddServiceDiscovery();
+            services.AddTransient<IClaimsTransformation, IdentityServiceRoleClaimsTransformation>();
+        }
 
         return services;
     }

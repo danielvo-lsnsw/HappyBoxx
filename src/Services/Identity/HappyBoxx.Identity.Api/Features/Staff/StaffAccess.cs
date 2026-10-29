@@ -1,13 +1,16 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+
 using FluentValidation;
+
 using HappyBoxx.BuildingBlocks.Endpoints;
 using HappyBoxx.BuildingBlocks.Validation;
 using HappyBoxx.Identity.Api.Domain;
 using HappyBoxx.Identity.Api.Infrastructure.Persistence;
 using HappyBoxx.Identity.Api.Infrastructure.Email;
 using HappyBoxx.ServiceDefaults.Security;
+
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;

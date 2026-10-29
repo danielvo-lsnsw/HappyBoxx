@@ -52,13 +52,21 @@ internal sealed class RegisterCustomerValidator : AbstractValidator<RegisterCust
 
 internal sealed class RegisterCustomerEndpoint : IEndpoint
 {
+    // HappyBoxx is now an internal, admin-only stock management tool; external customer
+    // self-registration is disabled. The route still exists (returning 404) so older/cached
+    // clients get a clear response instead of a routing failure, while the handler, domain
+    // model, and database table are retained in case customer-facing registration returns.
     public void MapEndpoint(IEndpointRouteBuilder app) =>
-        app.MapPost("identity/customers/register", HandleAsync)
+        app.MapPost("identity/customers/register", DisabledAsync)
             .WithName("RegisterCustomer")
             .WithTags("Customers")
-            .WithSummary("Create an active customer account after Entra email verification")
-            .RequireAuthorization(HappyBoxxPolicies.Authenticated)
-            .WithRequestValidation<RegisterCustomerRequest>();
+            .WithSummary("Disabled: customer self-registration is no longer supported")
+            .AllowAnonymous();
+
+    private static Task<ProblemHttpResult> DisabledAsync() => Task.FromResult(TypedResults.Problem(
+        statusCode: StatusCodes.Status404NotFound,
+        title: "Customer self-registration is disabled",
+        detail: "HappyBoxx is an internal admin-only tool; customer self-registration is no longer supported."));
 
     private static async Task<Results<Created<CustomerAccountResponse>, ProblemHttpResult>> HandleAsync(
         RegisterCustomerRequest request,

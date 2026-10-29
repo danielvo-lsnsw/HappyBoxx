@@ -19,6 +19,8 @@
 
 ## 3. Customer Registration
 
+- **Current state: disabled.** HappyBoxx is an internal, admin-only stock-management tool; there is no external customer-facing portal. The customer self-registration API endpoint is wired to always return `404 Not Found` and the SPA has no registration route or entry point. The underlying customer domain model and database table are retained, unused, so this capability can be re-enabled later without a data migration.
+- The requirements below describe the design if customer self-registration is re-enabled in the future.
 - Customers can self-register through the customer portal.
 - Entra collects and verifies the email address and manages the password. HappyBoxx collects and stores the physical address, phone number, and other HappyBoxx profile details required by the business.
 - A customer account is not Active until email verification is complete. The API MUST reject protected customer operations for unverified, disabled, or otherwise inactive accounts.
@@ -39,9 +41,9 @@
 
 Role assignment is owned by HappyBoxx. Deny permissions by default and enforce each permission in the APIs, not only in the UI or gateway.
 
-| Role | Allowed access | Explicitly prohibited |
-|---|---|---|
-| `Admin` | Manage staff invitations and roles, customer accounts, catalog, orders, and inventory, subject to audit logging. | None within the HappyBoxx application; platform/Entra tenant administration remains separately privileged. |
+| Role            | Allowed access                                                                                                                                   | Explicitly prohibited                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Admin`         | Manage staff invitations and roles, customer accounts, catalog, orders, and inventory, subject to audit logging.                                 | None within the HappyBoxx application; platform/Entra tenant administration remains separately privileged.                             |
 | `Order Creator` | View the product, customer, and stock availability information needed to create orders; create, view, edit, and cancel only orders they created. | Create or modify products/categories, adjust or receive stock, change stock levels or reorder settings, manage users, or assign roles. |
 
 - Order creation MUST NOT indirectly mutate stock. Stock reservation or adjustment requires a separately authorized workflow.
@@ -54,8 +56,8 @@ Role assignment is owned by HappyBoxx. Deny permissions by default and enforce e
 - Store HappyBoxx profile data, lifecycle state, invitation metadata, and role assignments in application storage. Do not store passwords, OTPs, or Entra client secrets there.
 - Browser applications MUST NOT contain client secrets or put tokens in `localStorage`. Validate token issuer, audience, signature, expiry, and required application account state at protected APIs.
 - Use a dedicated Entra External ID test tenant, separate from production. Microsoft currently offers a 30-day external-tenant trial that does not require an Azure subscription; continued use requires billing configuration. The app and APIs run locally and do not need to be hosted in Azure for authentication testing.
-- For real end-to-end tests, register `http://localhost:5173/`, `http://localhost:5173/register`, and `http://localhost:5173/accept-invitation` as SPA redirect URLs in the test tenant and use test identities/inboxes. Do not use production user data. OTP email is sent to the actual test mailbox.
-- The admin SPA reads public client configuration from `VITE_ENTRA_CLIENT_ID`, `VITE_ENTRA_AUTHORITY`, `VITE_ENTRA_API_SCOPE`, and optional `VITE_ENTRA_REDIRECT_URI`. The API services read `Authentication__Authority` and `Authentication__Audience` from environment configuration. Client IDs, authority, and scope are public identifiers; client secrets MUST NOT be added to Vite configuration.
+- For real end-to-end tests, register `http://localhost:5173/` and `http://localhost:5173/accept-invitation` as SPA redirect URLs in the test tenant and use test identities/inboxes. Do not use production user data. OTP email is sent to the actual test mailbox.
+- The admin SPA reads public client configuration from `VITE_ENTRA_CLIENT_ID`, `VITE_ENTRA_TENANT_ID`, `VITE_ENTRA_AUTHORITY`, `VITE_ENTRA_API_SCOPE`, and optional `VITE_ENTRA_REDIRECT_URI`. The API services read `Authentication__Authority` and `Authentication__Audience` from environment configuration. Client IDs, tenant ID, authority, and scope are public identifiers; client secrets MUST NOT be added to Vite configuration.
 - The API access token must target the HappyBoxx API audience and contain the stable `sub` and verified `email` claims emitted by the configured Entra user flow. Identity maps `sub` to an active application account and contributes the database-owned role; client-submitted identity or role values are never trusted.
 - Bootstrap the first Admin only after they complete Entra sign-up and email OTP verification. Use [bootstrap-first-admin.example.sql](../scripts/sql/bootstrap-first-admin.example.sql) once, replacing every placeholder and supplying a GUID v7. Never expose a public first-Admin bootstrap endpoint.
 - Automated UI and API tests MUST also run without Entra by substituting a fake identity provider or test authentication handler. These test doubles MUST be limited to test execution and MUST NOT be available as an authentication path in deployed environments.

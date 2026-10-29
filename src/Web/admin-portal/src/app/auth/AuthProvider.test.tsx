@@ -50,25 +50,4 @@ describe('local authentication provider', () => {
       'X-HappyBoxx-Dev-Role': 'Order Creator',
     });
   });
-
-  it('does not allow a customer identity into the staff portal', () => {
-    render(
-      <MantineProvider>
-        <MemoryRouter>
-          <UiLanguageProvider>
-            <AuthBoundary>
-              <AuthenticationGate>
-                <p>Protected portal</p>
-              </AuthenticationGate>
-            </AuthBoundary>
-          </UiLanguageProvider>
-        </MemoryRouter>
-      </MantineProvider>,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'Continue as local Customer' }));
-
-    expect(screen.queryByText('Protected portal')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Sign in to HappyBoxx' })).toBeInTheDocument();
-  });
 });
