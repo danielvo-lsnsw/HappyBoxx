@@ -32,7 +32,7 @@ internal sealed class ListCategoriesHandler(CatalogDbContext dbContext) : IHandl
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            categories = categories.Where(c => c.Name.Contains(query.Search));
+            categories = categories.Where(c => c.Name.Contains(query.Search) || c.Code.Contains(query.Search));
         }
 
         if (query.IsActive is { } isActive)

@@ -23,6 +23,29 @@ namespace HappyBoxx.Inventory.Api.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("HappyBoxx.Inventory.Api.Domain.StockAdjustment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("QuantityChange")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "OccurredAtUtc");
+
+                    b.ToTable("StockAdjustments", "inventory");
+                });
+
             modelBuilder.Entity("HappyBoxx.Inventory.Api.Domain.StockItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -31,14 +54,18 @@ namespace HappyBoxx.Inventory.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<decimal>("MaxLevel")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("MinLevel")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("QuantityOnHand")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("ReorderLevel")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 

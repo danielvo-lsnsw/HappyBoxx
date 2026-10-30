@@ -1,4 +1,13 @@
-import { NumberInput, Select, SimpleGrid, Stack, Switch, Textarea, TextInput } from '@mantine/core';
+import {
+  NumberInput,
+  Select,
+  SimpleGrid,
+  Stack,
+  Switch,
+  TagsInput,
+  Textarea,
+  TextInput,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import type { Category } from '@/features/categories/types';
 import { currencySymbol } from '@/lib/format';
@@ -8,11 +17,18 @@ import { useUiLanguage } from '@/app/localization/UiLanguageContext';
 
 export interface ProductFormValues {
   sku: string;
+  legacyCode: string;
   name: string;
   description: string;
   categoryId: string | null;
   unit: UnitOfMeasure;
-  price: number | string;
+  packDetails: string;
+  sellPriceNear: number | string;
+  sellPriceFar: number | string;
+  buyPrice: number | string;
+  priceEffectiveDate: string;
+  supplierNames: string[];
+  defaultSupplierName: string | null;
   isActive: boolean;
 }
 
@@ -42,8 +58,16 @@ export function ProductForm({ id, mode, initialValues, categories, onSubmit }: P
               : null,
       name: (value) => (value.trim() ? null : t('Name is required')),
       categoryId: (value) => (value ? null : t('Choose a category')),
-      price: (value) =>
-        value === '' || Number(value) < 0 ? t('Enter a price of 0 or more') : null,
+      sellPriceNear: (value) =>
+        value !== '' && Number(value) < 0 ? t('Enter a price of 0 or more') : null,
+      sellPriceFar: (value) =>
+        value !== '' && Number(value) < 0 ? t('Enter a price of 0 or more') : null,
+      buyPrice: (value) =>
+        value !== '' && Number(value) < 0 ? t('Enter a price of 0 or more') : null,
+      defaultSupplierName: (value, values) =>
+        value && !values.supplierNames.includes(value)
+          ? t('Default supplier must be in suppliers list')
+          : null,
     },
   });
 
@@ -67,9 +91,16 @@ export function ProductForm({ id, mode, initialValues, categories, onSubmit }: P
             placeholder={t('e.g. TOM-001')}
             required={mode === 'create'}
             disabled={mode === 'edit'}
-            description={mode === 'edit' ? t('SKU cannot be changed') : undefined}
+            // description={mode === 'edit' ? t('SKU cannot be changed') : undefined}
             {...form.getInputProps('sku')}
           />
+          <TextInput
+            label={t('Legacy code')}
+            placeholder={t('Spreadsheet code')}
+            {...form.getInputProps('legacyCode')}
+          />
+        </SimpleGrid>
+        <SimpleGrid cols={{ base: 1, xs: 2 }}>
           <Select
             label={t('Category')}
             placeholder={t('Select category')}
@@ -77,6 +108,11 @@ export function ProductForm({ id, mode, initialValues, categories, onSubmit }: P
             searchable
             data={categories.map((c) => ({ value: c.id, label: c.name }))}
             {...form.getInputProps('categoryId')}
+          />
+          <TextInput
+            label={t('Pack details')}
+            placeholder={t('e.g. 50 pcs x 10 slv')}
+            {...form.getInputProps('packDetails')}
           />
         </SimpleGrid>
         <TextInput
@@ -102,14 +138,60 @@ export function ProductForm({ id, mode, initialValues, categories, onSubmit }: P
             {...form.getInputProps('unit')}
           />
           <NumberInput
-            label={`${t('Price per')} ${unitLabels[form.values.unit].short}`}
-            required
+            label={t('Sell price (Near)')}
             min={0}
-            decimalScale={2}
+            decimalScale={3}
             fixedDecimalScale
             prefix={currencySymbol()}
             thousandSeparator=","
-            {...form.getInputProps('price')}
+            {...form.getInputProps('sellPriceNear')}
+          />
+        </SimpleGrid>
+        <SimpleGrid cols={{ base: 1, xs: 2 }}>
+          <NumberInput
+            label={t('Sell price (Far)')}
+            min={0}
+            decimalScale={3}
+            fixedDecimalScale
+            prefix={currencySymbol()}
+            thousandSeparator=","
+            {...form.getInputProps('sellPriceFar')}
+          />
+          <NumberInput
+            label={t('Buy price')}
+            min={0}
+            decimalScale={3}
+            fixedDecimalScale
+            prefix={currencySymbol()}
+            thousandSeparator=","
+            {...form.getInputProps('buyPrice')}
+          />
+        </SimpleGrid>
+        <TextInput
+          label={t('Price effective date')}
+          type="date"
+          description={t('Format: DD/MM/YYYY')}
+          {...form.getInputProps('priceEffectiveDate')}
+        />
+        <SimpleGrid cols={{ base: 1, xs: 2 }}>
+          <TagsInput
+            label={t('Suppliers')}
+            placeholder={t('Add suppliers')}
+            value={form.values.supplierNames}
+            onChange={(value) => {
+              const defaultSupplierName = value.includes(form.values.defaultSupplierName ?? '')
+                ? form.values.defaultSupplierName
+                : (value[0] ?? null);
+              form.setFieldValue('supplierNames', value);
+              form.setFieldValue('defaultSupplierName', defaultSupplierName);
+            }}
+          />
+          <Select
+            label={t('Default supplier')}
+            placeholder={t('Select default supplier')}
+            data={form.values.supplierNames.map((s) => ({ value: s, label: s }))}
+            clearable
+            {...form.getInputProps('defaultSupplierName')}
           />
         </SimpleGrid>
         {mode === 'edit' && (

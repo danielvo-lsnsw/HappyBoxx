@@ -81,5 +81,27 @@ export const httpClient = {
   get: <T>(path: string, params?: QueryParams, signal?: AbortSignal) =>
     request<T>('GET', buildUrl(path, params), undefined, signal),
   post: <T>(path: string, body: unknown) => request<T>('POST', buildUrl(path), body),
+  postForm: async <T>(path: string, formData: FormData) => {
+    const authHeaders = await getApiAuthHeaders();
+    const response = await fetch(buildUrl(path), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...authHeaders,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const problem = (await response.json().catch(() => ({}))) as ProblemDetails;
+      throw new ApiError(response.status, problem);
+    }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return (await response.json()) as T;
+  },
   put: <T>(path: string, body: unknown) => request<T>('PUT', buildUrl(path), body),
 };

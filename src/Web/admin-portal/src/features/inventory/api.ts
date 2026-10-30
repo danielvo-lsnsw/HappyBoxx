@@ -3,8 +3,11 @@ import { ApiError, httpClient, type PagedResult } from '@/lib/api/httpClient';
 import type {
   AdjustStockRequest,
   CreateStockItemRequest,
+  ListReorderSuggestionsParams,
   ListStockParams,
+  ReorderSuggestion,
   StockItem,
+  UpdateStockPolicyRequest,
 } from './types';
 
 export const stockKeys = {
@@ -12,6 +15,7 @@ export const stockKeys = {
   lists: () => [...stockKeys.all, 'list'] as const,
   list: (params: ListStockParams) => [...stockKeys.lists(), params] as const,
   byProduct: (productId: string) => [...stockKeys.all, 'product', productId] as const,
+  reorder: (params: ListReorderSuggestionsParams) => [...stockKeys.all, 'reorder', params] as const,
 };
 
 export function useStockQuery(params: ListStockParams = {}) {
@@ -63,5 +67,23 @@ export function useAdjustStockMutation(productId: string) {
     mutationFn: (request: AdjustStockRequest) =>
       httpClient.post<StockItem>(`/stock/${productId}/adjustments`, request),
     onSuccess,
+  });
+}
+
+export function useUpdateStockPolicyMutation(productId: string) {
+  const onSuccess = useInvalidateStock();
+  return useMutation({
+    mutationFn: (request: UpdateStockPolicyRequest) =>
+      httpClient.put<StockItem>(`/stock/${productId}/policy`, request),
+    onSuccess,
+  });
+}
+
+export function useReorderSuggestionsQuery(params: ListReorderSuggestionsParams = {}) {
+  return useQuery({
+    queryKey: stockKeys.reorder(params),
+    queryFn: ({ signal }) =>
+      httpClient.get<ReorderSuggestion[]>('/stock/reorder-suggestions', { ...params }, signal),
+    placeholderData: keepPreviousData,
   });
 }

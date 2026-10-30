@@ -1,9 +1,7 @@
 import {
-  IconApple,
   IconArrowBackUp,
   IconBox,
   IconBuildingWarehouse,
-  IconCarrot,
   IconCategory,
   IconChartBar,
   IconClipboardList,
@@ -13,7 +11,6 @@ import {
   IconLeaf,
   IconPackages,
   IconRoute,
-  IconShieldCheck,
   IconShoppingCart,
   IconSignature,
   IconStack2,
@@ -40,6 +37,31 @@ export interface NavItem {
 const productsInCategory = (category: string) =>
   `/inventory/products?category=${encodeURIComponent(category)}`;
 
+const packagingCategories = [
+  'RECTANGULAR CONTAINERS',
+  'ROUND CONTAINERS',
+  'BOWLS SOUP',
+  'SAUCE CONTAINERS',
+  'CLEARVIEW CONTAINERS',
+  'CUPS',
+  'CUTLERY',
+  'FOAM PLATES / TRAYS',
+  'GREASEPROOF PAPER',
+  'PAPER BAGS',
+  'CARRY PLASTIC BAGS',
+  'NAPKINS / Tissue/ Hand towel',
+  'ROLL',
+  'PAPER TRAYS / BOXES',
+  'SNACK BOXES',
+  'CHIP BOXES',
+  'FOIL TRAYS',
+].map((category) => ({ label: category, path: productsInCategory(category), icon: IconBox }));
+
+const otherSupplyCategories = [
+  'CHEMICALS & CLEANING (SUNSHINE SUPPLIERS)',
+  'DOCKET BOOKS & Doyley',
+].map((category) => ({ label: category, path: productsInCategory(category), icon: IconClipboardList }));
+
 /** Single source of truth for sidebar, breadcrumbs, global search and placeholder routes. */
 export const navigation: NavItem[] = [
   {
@@ -61,17 +83,18 @@ export const navigation: NavItem[] = [
       {
         label: 'Fresh Produce',
         icon: IconLeaf,
-        children: [
-          { label: 'Vegetables', path: productsInCategory('Vegetables'), icon: IconCarrot },
-          { label: 'Fruits', path: productsInCategory('Fruits'), icon: IconApple },
-        ],
+        planned: true,
+        description: 'Use your own produce categories',
       },
       {
         label: 'Packaging',
         icon: IconBox,
-        children: [
-          { label: 'Containers', path: productsInCategory('Food Containers'), icon: IconBox },
-        ],
+        children: packagingCategories,
+      },
+      {
+        label: 'Other Supplies',
+        icon: IconClipboardList,
+        children: otherSupplyCategories,
       },
       {
         label: 'Stock Levels',
@@ -80,17 +103,16 @@ export const navigation: NavItem[] = [
         description: 'On-hand quantities and low-stock alerts',
       },
       {
+        label: 'Product Insights',
+        path: '/inventory/product-insights',
+        icon: IconChartBar,
+        description: 'Reorder suggestions and profitability',
+      },
+      {
         label: 'Categories',
         path: '/inventory/categories',
         icon: IconCategory,
         description: 'Organise the catalog',
-      },
-      {
-        label: 'Spoilage & Quality Control',
-        path: '/inventory/quality',
-        icon: IconShieldCheck,
-        description: 'Record spoilage, inspections and write-offs',
-        planned: true,
       },
     ],
   },

@@ -37,7 +37,7 @@ internal sealed class ListStockHandler(InventoryDbContext dbContext) : IHandler
 
         if (query.LowStockOnly)
         {
-            stock = stock.Where(s => s.QuantityOnHand <= s.ReorderLevel);
+            stock = stock.Where(s => s.QuantityOnHand <= s.MinLevel);
         }
 
         return stock

@@ -1,6 +1,7 @@
 import { formatNumber } from './format';
 
 export const UNITS_OF_MEASURE = [
+  'Each',
   'Piece',
   'Kilogram',
   'Gram',
@@ -13,6 +14,7 @@ export const UNITS_OF_MEASURE = [
 export type UnitOfMeasure = (typeof UNITS_OF_MEASURE)[number];
 
 export const unitLabels: Record<UnitOfMeasure, { short: string; long: string }> = {
+  Each: { short: 'ea', long: 'Each' },
   Piece: { short: 'pcs', long: 'Pieces' },
   Kilogram: { short: 'kg', long: 'Kilograms' },
   Gram: { short: 'g', long: 'Grams' },

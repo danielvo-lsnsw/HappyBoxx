@@ -1,0 +1,2 @@
+sku,name,categoryCode,categoryName,unit,sellPriceNear,sellPriceFar,buyPrice,priceEffectiveDate,suppliers,defaultSupplierName,packDetails,description,legacyCode,isActive
+PKG450,RECTANGULAR CONTAINER 450ML,REC,Rectangular Containers,Piece,2.50,2.80,1.60,2026-10-30,"Supplier A, Supplier B",Supplier A,"50 pcs x 10 slv",Example product for import,450,true

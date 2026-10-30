@@ -12,9 +12,11 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).ValueGeneratedNever();
 
+        builder.Property(c => c.Code).HasMaxLength(Category.CodeMaxLength).IsRequired();
         builder.Property(c => c.Name).HasMaxLength(Category.NameMaxLength).IsRequired();
         builder.Property(c => c.Description).HasMaxLength(Category.DescriptionMaxLength);
 
+        builder.HasIndex(c => c.Code).IsUnique();
         builder.HasIndex(c => c.Name).IsUnique();
     }
 }

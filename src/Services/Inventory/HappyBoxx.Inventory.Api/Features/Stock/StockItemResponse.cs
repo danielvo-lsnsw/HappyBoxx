@@ -8,6 +8,8 @@ public sealed record StockItemResponse(
     Guid ProductId,
     string Sku,
     decimal QuantityOnHand,
+    decimal MinLevel,
+    decimal MaxLevel,
     decimal ReorderLevel,
     bool IsLowStock,
     DateTimeOffset UpdatedAtUtc)
@@ -18,8 +20,10 @@ public sealed record StockItemResponse(
             s.ProductId,
             s.Sku,
             s.QuantityOnHand,
-            s.ReorderLevel,
-            s.QuantityOnHand <= s.ReorderLevel,
+            s.MinLevel,
+            s.MaxLevel,
+            s.MinLevel,
+            s.QuantityOnHand <= s.MinLevel,
             s.UpdatedAtUtc);
 
     private static readonly Func<StockItem, StockItemResponse> CompiledProjection = Projection.Compile();

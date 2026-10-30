@@ -9,4 +9,7 @@ public static class CategoryErrors
 
     public static Error NameAlreadyExists(string name) =>
         Error.Conflict("Category.NameAlreadyExists", $"A category named '{name}' already exists.");
+
+    public static Error CodeAlreadyExists(string code) =>
+        Error.Conflict("Category.CodeAlreadyExists", $"A category code '{code}' already exists.");
 }

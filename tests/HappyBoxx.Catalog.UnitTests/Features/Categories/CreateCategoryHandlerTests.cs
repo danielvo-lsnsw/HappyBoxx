@@ -13,7 +13,7 @@ public sealed class CreateCategoryHandlerTests
         await using var db = TestDbContextFactory.Create();
         var handler = new CreateCategoryHandler(db);
 
-        var result = await handler.HandleAsync(new CreateCategoryRequest("Fruits", null), TestContext.Current.CancellationToken);
+        var result = await handler.HandleAsync(new CreateCategoryRequest("FRU", "Fruits", null), TestContext.Current.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.Name.ShouldBe("Fruits");
@@ -24,11 +24,11 @@ public sealed class CreateCategoryHandlerTests
     public async Task HandleAsync_WithDuplicateName_ReturnsConflict()
     {
         await using var db = TestDbContextFactory.Create();
-        db.Categories.Add(Category.Create("Fruits", null));
+        db.Categories.Add(Category.Create("FRU", "Fruits", null));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         var handler = new CreateCategoryHandler(db);
 
-        var result = await handler.HandleAsync(new CreateCategoryRequest(" Fruits ", null), TestContext.Current.CancellationToken);
+        var result = await handler.HandleAsync(new CreateCategoryRequest("FRU2", " Fruits ", null), TestContext.Current.CancellationToken);
 
         result.IsFailure.ShouldBeTrue();
         result.Error.Type.ShouldBe(ErrorType.Conflict);

@@ -19,6 +19,16 @@ import { useAuth } from '@/app/auth/AuthContext';
 
 const columns: DataTableColumn<Category>[] = [
   {
+    key: 'code',
+    header: 'Code',
+    width: 120,
+    render: (c) => (
+      <Text ff="monospace" fw={600} size="sm">
+        {c.code}
+      </Text>
+    ),
+  },
+  {
     key: 'name',
     header: 'Name',
     render: (c) => (

@@ -20,4 +20,8 @@
     <InternalsVisibleTo Include="HappyBoxx.Catalog.UnitTests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Infrastructure\Persistence\SeedData\price-list-import.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

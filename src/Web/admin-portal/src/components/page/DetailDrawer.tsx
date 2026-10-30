@@ -11,6 +11,7 @@ interface DetailDrawerProps {
   children: ReactNode;
   /** Sticky action bar (Cancel / Save). */
   footer?: ReactNode;
+  drawerSize?: number | string;
 }
 
 /** Contextual right panel – see docs/UI_GUIDELINES.md §4. */
@@ -22,10 +23,11 @@ export function DetailDrawer({
   badge,
   children,
   footer,
+  drawerSize,
 }: DetailDrawerProps) {
   const { t } = useUiLanguage();
   return (
-    <Drawer.Root opened={opened} onClose={onClose} position="right" size={540}>
+    <Drawer.Root opened={opened} onClose={onClose} position="right" size={drawerSize ?? 540}>
       <Drawer.Overlay backgroundOpacity={0.25} blur={1} />
       <Drawer.Content>
         <Stack gap={0} h="100%">

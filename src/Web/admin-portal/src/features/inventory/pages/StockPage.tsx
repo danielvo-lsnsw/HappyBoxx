@@ -40,11 +40,18 @@ const columns: DataTableColumn<StockItem>[] = [
     ),
   },
   {
-    key: 'reorder',
-    header: 'Reorder level',
+    key: 'min',
+    header: 'Min level',
     align: 'right',
     width: 140,
-    render: (s) => <span className="tabular">{formatNumber(s.reorderLevel)}</span>,
+    render: (s) => <span className="tabular">{formatNumber(s.minLevel)}</span>,
+  },
+  {
+    key: 'max',
+    header: 'Max level',
+    align: 'right',
+    width: 140,
+    render: (s) => <span className="tabular">{formatNumber(s.maxLevel)}</span>,
   },
   {
     key: 'status',
@@ -92,7 +99,8 @@ export function StockPage() {
       toCsv(stock.data?.items ?? [], [
         { header: 'SKU', value: (s) => s.sku },
         { header: 'On hand', value: (s) => s.quantityOnHand },
-        { header: 'Reorder level', value: (s) => s.reorderLevel },
+        { header: 'Min level', value: (s) => s.minLevel },
+        { header: 'Max level', value: (s) => s.maxLevel },
         { header: 'Status', value: (s) => getStockStatus(s).label },
         { header: 'Updated (UTC)', value: (s) => s.updatedAtUtc },
       ]),

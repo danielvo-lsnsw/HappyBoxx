@@ -9,9 +9,20 @@ public sealed class ProductTests
     [Fact]
     public void Create_WithValidInput_NormalisesSkuAndIsActive()
     {
-        var category = Category.Create("Fruits", null);
+        var category = Category.Create("FRU", "Fruits", null);
 
-        var product = Product.Create("  app-001 ", " Apple ", null, category.Id, UnitOfMeasure.Kilogram, 3.50m);
+        var product = Product.Create(
+            "  app-001 ",
+            null,
+            " Apple ",
+            null,
+            category.Id,
+            UnitOfMeasure.Kilogram,
+            null,
+            3.50m,
+            null,
+            null,
+            null);
 
         product.Sku.ShouldBe("APP-001");
         product.Name.ShouldBe("Apple");
@@ -22,6 +33,6 @@ public sealed class ProductTests
     public void Create_WithNegativePrice_Throws()
     {
         Should.Throw<ArgumentOutOfRangeException>(() =>
-            Product.Create("APP-001", "Apple", null, Guid.NewGuid(), UnitOfMeasure.Kilogram, -1m));
+            Product.Create("APP-001", null, "Apple", null, Guid.NewGuid(), UnitOfMeasure.Kilogram, null, -1m, null, null, null));
     }
 }

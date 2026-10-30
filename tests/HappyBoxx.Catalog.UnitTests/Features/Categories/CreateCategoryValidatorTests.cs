@@ -12,7 +12,7 @@ public sealed class CreateCategoryValidatorTests
     [InlineData("   ")]
     public void Validate_WithEmptyName_IsInvalid(string name)
     {
-        var result = _validator.Validate(new CreateCategoryRequest(name, null));
+        var result = _validator.Validate(new CreateCategoryRequest("FRU", name, null));
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == nameof(CreateCategoryRequest.Name));
@@ -21,7 +21,7 @@ public sealed class CreateCategoryValidatorTests
     [Fact]
     public void Validate_WithValidRequest_IsValid()
     {
-        var result = _validator.Validate(new CreateCategoryRequest("Vegetables", "Fresh vegetables"));
+        var result = _validator.Validate(new CreateCategoryRequest("VEG", "Vegetables", "Fresh vegetables"));
 
         result.IsValid.ShouldBeTrue();
     }

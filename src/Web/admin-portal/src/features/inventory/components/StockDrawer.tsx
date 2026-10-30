@@ -20,7 +20,7 @@ import { StatusBadge } from '@/components/data/StatusBadge';
 import { DetailDrawer } from '@/components/page/DetailDrawer';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { handleSubmitError, notifySuccess } from '@/lib/forms';
-import { useAdjustStockMutation, useStockByProductQuery } from '../api';
+import { useAdjustStockMutation, useStockByProductQuery, useUpdateStockPolicyMutation } from '../api';
 import { getStockStatus } from '../stockStatus';
 import type { StockItem } from '../types';
 import { useUiLanguage } from '@/app/localization/UiLanguageContext';
@@ -64,8 +64,10 @@ export function StockDrawer({ productId, onClose }: StockDrawerProps) {
         <Stack gap="lg">
           <SimpleGrid cols={2}>
             <Stat label={t('On hand')} value={formatNumber(item.quantityOnHand)} />
-            <Stat label={t('Reorder level')} value={formatNumber(item.reorderLevel)} />
+            <Stat label={t('Min level')} value={formatNumber(item.minLevel)} />
+            <Stat label={t('Max level')} value={formatNumber(item.maxLevel)} />
           </SimpleGrid>
+          {isAdmin && <PolicyForm key={`${item.id}-policy`} item={item} />}
           {isAdmin && <AdjustStockForm key={item.id} item={item} />}
           <Anchor component={Link} to={`/inventory/products?productId=${item.productId}`} size="sm">
             {t('View product details →')}
@@ -73,6 +75,50 @@ export function StockDrawer({ productId, onClose }: StockDrawerProps) {
         </Stack>
       )}
     </DetailDrawer>
+  );
+}
+
+function PolicyForm({ item }: { item: StockItem }) {
+  const { t } = useUiLanguage();
+  const updatePolicy = useUpdateStockPolicyMutation(item.productId);
+  const form = useForm({
+    mode: 'controlled',
+    initialValues: {
+      minLevel: item.minLevel,
+      maxLevel: item.maxLevel,
+    },
+    validate: {
+      minLevel: (value) => (value < 0 ? t('Enter 0 or more') : null),
+      maxLevel: (value, values) => (value < values.minLevel ? t('Must be >= min level') : null),
+    },
+  });
+
+  const submit = form.onSubmit(async (values) => {
+    try {
+      await updatePolicy.mutateAsync(values);
+      notifySuccess(t('Stock policy updated'));
+    } catch (error) {
+      handleSubmitError(form, error);
+    }
+  });
+
+  return (
+    <Paper withBorder p="md" radius="md">
+      <form onSubmit={submit} noValidate>
+        <Stack gap="sm">
+          <Title order={5}>{t('Reorder policy')}</Title>
+          <SimpleGrid cols={2}>
+            <NumberInput label={t('Min level')} min={0} decimalScale={3} {...form.getInputProps('minLevel')} />
+            <NumberInput label={t('Max level')} min={0} decimalScale={3} {...form.getInputProps('maxLevel')} />
+          </SimpleGrid>
+          <Group justify="flex-end">
+            <Button type="submit" variant="light" loading={updatePolicy.isPending}>
+              {t('Save policy')}
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Paper>
   );
 }
 

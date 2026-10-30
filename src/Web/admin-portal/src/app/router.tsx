@@ -55,6 +55,13 @@ export const router = createBrowserRouter([
           import('@/features/inventory/pages/StockPage').then((m) => ({ Component: m.StockPage })),
       },
       {
+        path: 'inventory/product-insights',
+        lazy: () =>
+          import('@/features/products/pages/ProductInsightsPage').then((m) => ({
+            Component: m.ProductInsightsPage,
+          })),
+      },
+      {
         path: 'admin/staff',
         lazy: () =>
           import('@/pages/StaffAccessPage').then((m) => ({ Component: m.StaffAccessPage })),

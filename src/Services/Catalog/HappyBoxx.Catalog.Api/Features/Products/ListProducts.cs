@@ -14,7 +14,9 @@ public sealed record ListProductsQuery(
     int PageSize = 20,
     string? Search = null,
     Guid? CategoryId = null,
-    bool? IsActive = null) : IPagedQuery;
+    bool? IsActive = null,
+    string? SortBy = null,
+    string? SortDir = null) : IPagedQuery;
 
 internal sealed class ListProductsValidator : AbstractValidator<ListProductsQuery>
 {
@@ -22,7 +24,24 @@ internal sealed class ListProductsValidator : AbstractValidator<ListProductsQuer
     {
         this.AddPagingRules();
         RuleFor(x => x.Search).MaximumLength(100);
+        RuleFor(x => x.SortBy)
+            .Must(BeValidSortBy)
+            .When(x => !string.IsNullOrWhiteSpace(x.SortBy))
+            .WithMessage("SortBy is not supported.");
+        RuleFor(x => x.SortDir)
+            .Must(x => x is "asc" or "desc")
+            .When(x => !string.IsNullOrWhiteSpace(x.SortDir))
+            .WithMessage("SortDir must be 'asc' or 'desc'.");
     }
+
+    private static bool BeValidSortBy(string? sortBy) => sortBy is
+        "sku" or
+        "name" or
+        "category" or
+        "unit" or
+        "near" or
+        "far" or
+        "status";
 }
 
 internal sealed class ListProductsHandler(CatalogDbContext dbContext) : IHandler
@@ -33,7 +52,10 @@ internal sealed class ListProductsHandler(CatalogDbContext dbContext) : IHandler
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            products = products.Where(p => p.Name.Contains(query.Search) || p.Sku.Contains(query.Search));
+            products = products.Where(p =>
+                p.Name.Contains(query.Search) ||
+                p.Sku.Contains(query.Search) ||
+                (p.LegacyCode != null && p.LegacyCode.Contains(query.Search)));
         }
 
         if (query.CategoryId is { } categoryId)
@@ -46,10 +68,21 @@ internal sealed class ListProductsHandler(CatalogDbContext dbContext) : IHandler
             products = products.Where(p => p.IsActive == isActive);
         }
 
-        return products
-            .OrderBy(p => p.Name)
-            .Select(ProductResponse.Projection)
-            .ToPagedResultAsync(query, cancellationToken);
+        var sortBy = query.SortBy?.Trim().ToLowerInvariant() ?? "sku";
+        var descending = string.Equals(query.SortDir, "desc", StringComparison.OrdinalIgnoreCase);
+
+        products = sortBy switch
+        {
+            "name" => descending ? products.OrderByDescending(p => p.Name).ThenBy(p => p.Sku) : products.OrderBy(p => p.Name).ThenBy(p => p.Sku),
+            "category" => descending ? products.OrderByDescending(p => p.Category!.Name).ThenBy(p => p.Sku) : products.OrderBy(p => p.Category!.Name).ThenBy(p => p.Sku),
+            "unit" => descending ? products.OrderByDescending(p => p.Unit).ThenBy(p => p.Sku) : products.OrderBy(p => p.Unit).ThenBy(p => p.Sku),
+            "near" => descending ? products.OrderByDescending(p => p.SellPriceNear).ThenBy(p => p.Sku) : products.OrderBy(p => p.SellPriceNear).ThenBy(p => p.Sku),
+            "far" => descending ? products.OrderByDescending(p => p.SellPriceFar).ThenBy(p => p.Sku) : products.OrderBy(p => p.SellPriceFar).ThenBy(p => p.Sku),
+            "status" => descending ? products.OrderByDescending(p => p.IsActive).ThenBy(p => p.Sku) : products.OrderBy(p => p.IsActive).ThenBy(p => p.Sku),
+            _ => descending ? products.OrderByDescending(p => p.Sku) : products.OrderBy(p => p.Sku),
+        };
+
+        return products.Select(ProductResponse.Projection).ToPagedResultAsync(query, cancellationToken);
     }
 }
 

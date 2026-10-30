@@ -5,6 +5,7 @@ namespace HappyBoxx.Catalog.Api.Features.Categories;
 
 public sealed record CategoryResponse(
     Guid Id,
+    string Code,
     string Name,
     string? Description,
     bool IsActive,
@@ -12,7 +13,7 @@ public sealed record CategoryResponse(
     DateTimeOffset UpdatedAtUtc)
 {
     internal static readonly Expression<Func<Category, CategoryResponse>> Projection = c =>
-        new CategoryResponse(c.Id, c.Name, c.Description, c.IsActive, c.CreatedAtUtc, c.UpdatedAtUtc);
+        new CategoryResponse(c.Id, c.Code, c.Name, c.Description, c.IsActive, c.CreatedAtUtc, c.UpdatedAtUtc);
 
     private static readonly Func<Category, CategoryResponse> CompiledProjection = Projection.Compile();
 

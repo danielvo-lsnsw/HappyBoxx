@@ -71,15 +71,20 @@ function CategoryForm({ category, onDone }: { category?: Category; onDone: () =>
   const form = useForm({
     mode: 'controlled',
     initialValues: {
+      code: category?.code ?? '',
       name: category?.name ?? '',
       description: category?.description ?? '',
       isActive: category?.isActive ?? true,
     },
-    validate: { name: (value) => (value.trim() ? null : t('Name is required')) },
+    validate: {
+      code: (value) => (!value.trim() ? t('Code is required') : null),
+      name: (value) => (value.trim() ? null : t('Name is required')),
+    },
   });
 
   const submit = form.onSubmit(async (values) => {
     const request = {
+      code: values.code.trim().toUpperCase(),
       name: values.name.trim(),
       description: values.description.trim() || null,
     };
@@ -93,13 +98,22 @@ function CategoryForm({ category, onDone }: { category?: Category; onDone: () =>
       }
       onDone();
     } catch (error) {
-      handleSubmitError(form, error, { 'Category.NameAlreadyExists': 'name' });
+      handleSubmitError(form, error, {
+        'Category.NameAlreadyExists': 'name',
+        'Category.CodeAlreadyExists': 'code',
+      });
     }
   });
 
   return (
     <form id={FORM_ID} onSubmit={submit} noValidate>
       <Stack gap="md">
+        <TextInput
+          label={t('Code')}
+          placeholder={t('e.g. REC')}
+          required
+          {...form.getInputProps('code')}
+        />
         <TextInput
           label={t('Name')}
           placeholder={t('e.g. Leafy greens')}

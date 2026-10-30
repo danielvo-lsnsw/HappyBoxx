@@ -11,12 +11,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyBoxx.Catalog.Api.Features.Categories;
 
-public sealed record UpdateCategoryRequest(string Name, string? Description, bool IsActive);
+public sealed record UpdateCategoryRequest(string Code, string Name, string? Description, bool IsActive);
 
 internal sealed class UpdateCategoryValidator : AbstractValidator<UpdateCategoryRequest>
 {
     public UpdateCategoryValidator()
     {
+        RuleFor(x => x.Code)
+            .NotEmpty()
+            .MaximumLength(Category.CodeMaxLength)
+            .Matches("^[A-Za-z0-9-]+$")
+            .WithMessage("Code may only contain letters, digits and dashes.");
         RuleFor(x => x.Name).NotEmpty().MaximumLength(Category.NameMaxLength);
         RuleFor(x => x.Description).MaximumLength(Category.DescriptionMaxLength);
     }
@@ -32,13 +37,19 @@ internal sealed class UpdateCategoryHandler(CatalogDbContext dbContext) : IHandl
             return CategoryErrors.NotFound(id);
         }
 
+        var code = request.Code.Trim().ToUpperInvariant();
         var name = request.Name.Trim();
+        if (await dbContext.Categories.AnyAsync(c => c.Id != id && c.Code == code, cancellationToken))
+        {
+            return CategoryErrors.CodeAlreadyExists(code);
+        }
+
         if (await dbContext.Categories.AnyAsync(c => c.Id != id && c.Name == name, cancellationToken))
         {
             return CategoryErrors.NameAlreadyExists(name);
         }
 
-        category.Update(name, request.Description, request.IsActive);
+        category.Update(code, name, request.Description, request.IsActive);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return CategoryResponse.From(category);

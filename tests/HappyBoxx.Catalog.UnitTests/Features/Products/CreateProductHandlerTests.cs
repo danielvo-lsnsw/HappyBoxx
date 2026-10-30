@@ -10,11 +10,11 @@ public sealed class CreateProductHandlerTests
     public async Task HandleAsync_WithUnknownCategory_ReturnsCategoryNotFound()
     {
         await using var db = TestDbContextFactory.Create();
-        var handler = new CreateProductHandler(db);
+        var handler = new CreateProductHandler(db, TimeProvider.System);
         var categoryId = Guid.NewGuid();
 
         var result = await handler.HandleAsync(
-            new CreateProductRequest("TOM-001", "Tomato", null, categoryId, UnitOfMeasure.Kilogram, 2.10m),
+            new CreateProductRequest("TOM-001", null, "Tomato", null, categoryId, UnitOfMeasure.Kilogram, null, 2.10m, null, null, null, null, null),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.ShouldBeTrue();

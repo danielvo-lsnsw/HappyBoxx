@@ -18,25 +18,34 @@ public sealed class StockItem : AuditableEntity
 
     public decimal QuantityOnHand { get; private set; }
 
-    public decimal ReorderLevel { get; private set; }
+    public decimal MinLevel { get; private set; }
 
-    public bool IsLowStock => QuantityOnHand <= ReorderLevel;
+    public decimal MaxLevel { get; private set; }
+
+    public decimal ReorderLevel => MinLevel;
+
+    public bool IsLowStock => QuantityOnHand <= MinLevel;
 
     public byte[] RowVersion { get; private set; } = [];
 
-    public static StockItem Create(Guid productId, string sku, decimal initialQuantity, decimal reorderLevel)
+    public static StockItem Create(
+        Guid productId,
+        string sku,
+        decimal initialQuantity,
+        decimal minLevel,
+        decimal maxLevel)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sku);
         ArgumentOutOfRangeException.ThrowIfNegative(initialQuantity);
-        ArgumentOutOfRangeException.ThrowIfNegative(reorderLevel);
 
-        return new StockItem
+        var stockItem = new StockItem
         {
             ProductId = productId,
             Sku = sku.Trim().ToUpperInvariant(),
             QuantityOnHand = initialQuantity,
-            ReorderLevel = reorderLevel,
         };
+        stockItem.SetPolicy(minLevel, maxLevel);
+        return stockItem;
     }
 
     public Result Adjust(decimal quantityChange)
@@ -55,9 +64,16 @@ public sealed class StockItem : AuditableEntity
         return Result.Success();
     }
 
-    public void SetReorderLevel(decimal reorderLevel)
+    public void SetPolicy(decimal minLevel, decimal maxLevel)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(reorderLevel);
-        ReorderLevel = reorderLevel;
+        ArgumentOutOfRangeException.ThrowIfNegative(minLevel);
+        ArgumentOutOfRangeException.ThrowIfNegative(maxLevel);
+        if (maxLevel < minLevel)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxLevel), "Max level must be >= min level.");
+        }
+
+        MinLevel = minLevel;
+        MaxLevel = maxLevel;
     }
 }

@@ -79,10 +79,18 @@ export function ProductStockSection({ product }: { product: Product }) {
         </div>
         <div>
           <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-            {t('Reorder level')}
+            {t('Min level')}
           </Text>
           <Text size="xl" fw={700} className="tabular">
-            {show(item.reorderLevel)}
+            {show(item.minLevel)}
+          </Text>
+        </div>
+        <div>
+          <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+            {t('Max level')}
+          </Text>
+          <Text size="xl" fw={700} className="tabular">
+            {show(item.maxLevel)}
           </Text>
         </div>
       </SimpleGrid>
@@ -105,10 +113,16 @@ function StartTrackingForm({ product }: { product: Product }) {
   const createStock = useCreateStockItemMutation();
   const form = useForm({
     mode: 'controlled',
-    initialValues: { initialQuantity: 0 as number | string, reorderLevel: 0 as number | string },
+    initialValues: {
+      initialQuantity: 0 as number | string,
+      minLevel: 0 as number | string,
+      maxLevel: 0 as number | string,
+    },
     validate: {
       initialQuantity: (v) => (v === '' || Number(v) < 0 ? t('Enter 0 or more') : null),
-      reorderLevel: (v) => (v === '' || Number(v) < 0 ? t('Enter 0 or more') : null),
+      minLevel: (v) => (v === '' || Number(v) < 0 ? t('Enter 0 or more') : null),
+      maxLevel: (v, values) =>
+        v === '' || Number(v) < Number(values.minLevel) ? t('Must be >= min level') : null,
     },
   });
 
@@ -118,7 +132,8 @@ function StartTrackingForm({ product }: { product: Product }) {
         productId: product.id,
         sku: product.sku,
         initialQuantity: Number(values.initialQuantity),
-        reorderLevel: Number(values.reorderLevel),
+        minLevel: Number(values.minLevel),
+        maxLevel: Number(values.maxLevel),
       });
       notifySuccess(
         `${product.sku} ${t('is now tracked in inventory')}`,
@@ -148,10 +163,16 @@ function StartTrackingForm({ product }: { product: Product }) {
               {...form.getInputProps('initialQuantity')}
             />
             <NumberInput
-              label={t('Reorder level')}
+              label={t('Min level')}
               min={0}
               decimalScale={3}
-              {...form.getInputProps('reorderLevel')}
+              {...form.getInputProps('minLevel')}
+            />
+            <NumberInput
+              label={t('Max level')}
+              min={0}
+              decimalScale={3}
+              {...form.getInputProps('maxLevel')}
             />
           </SimpleGrid>
           <Group justify="flex-end">

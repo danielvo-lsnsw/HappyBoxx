@@ -28,6 +28,11 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -48,6 +53,9 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.HasIndex("Name")
                         .IsUnique();
 
@@ -58,6 +66,10 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("BuyPrice")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
@@ -72,14 +84,29 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LegacyCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("PackDetails")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateOnly?>("PriceEffectiveDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal?>("SellPriceFar")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal?>("SellPriceNear")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<string>("Sku")
                         .IsRequired()
@@ -106,6 +133,95 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("Products", "catalog");
                 });
 
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Products.ProductChangeHistoryEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ChangedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ChangedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "ChangedAtUtc");
+
+                    b.ToTable("ProductChangeHistory", "catalog");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Suppliers.ProductSupplier", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("LastBuyPrice")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<DateTimeOffset?>("LastBuyPriceAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("ProductId", "SupplierId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("ProductId", "IsDefault")
+                        .HasFilter("[IsDefault] = 1");
+
+                    b.ToTable("ProductSuppliers", "catalog");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Suppliers.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Suppliers", "catalog");
+                });
+
             modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Products.Product", b =>
                 {
                     b.HasOne("HappyBoxx.Catalog.Api.Domain.Categories.Category", "Category")
@@ -115,6 +231,46 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Products.ProductChangeHistoryEntry", b =>
+                {
+                    b.HasOne("HappyBoxx.Catalog.Api.Domain.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Suppliers.ProductSupplier", b =>
+                {
+                    b.HasOne("HappyBoxx.Catalog.Api.Domain.Products.Product", "Product")
+                        .WithMany("ProductSuppliers")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HappyBoxx.Catalog.Api.Domain.Suppliers.Supplier", "Supplier")
+                        .WithMany("ProductSuppliers")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Products.Product", b =>
+                {
+                    b.Navigation("ProductSuppliers");
+                });
+
+            modelBuilder.Entity("HappyBoxx.Catalog.Api.Domain.Suppliers.Supplier", b =>
+                {
+                    b.Navigation("ProductSuppliers");
                 });
 #pragma warning restore 612, 618
         }

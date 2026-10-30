@@ -6,9 +6,17 @@ const currencyFormatter = new Intl.NumberFormat(undefined, {
   currency: CURRENCY,
 });
 const numberFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 });
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: 'medium',
-  timeStyle: 'short',
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+const dateTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
 });
 
 export function formatCurrency(value: number): string {
@@ -17,6 +25,10 @@ export function formatCurrency(value: number): string {
 
 export function formatNumber(value: number): string {
   return numberFormatter.format(value);
+}
+
+export function formatDate(isoDate: string): string {
+  return dateFormatter.format(new Date(isoDate));
 }
 
 export function formatDateTime(isoDate: string): string {

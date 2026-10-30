@@ -22,7 +22,10 @@ internal sealed class AdjustStockValidator : AbstractValidator<AdjustStockReques
     }
 }
 
-internal sealed partial class AdjustStockHandler(InventoryDbContext dbContext, ILogger<AdjustStockHandler> logger) : IHandler
+internal sealed partial class AdjustStockHandler(
+    InventoryDbContext dbContext,
+    TimeProvider timeProvider,
+    ILogger<AdjustStockHandler> logger) : IHandler
 {
     public async Task<Result<StockItemResponse>> HandleAsync(Guid productId, AdjustStockRequest request, CancellationToken cancellationToken)
     {
@@ -38,6 +41,8 @@ internal sealed partial class AdjustStockHandler(InventoryDbContext dbContext, I
             return result.Error;
         }
 
+        dbContext.StockAdjustments.Add(
+            StockAdjustment.Create(productId, request.QuantityChange, timeProvider.GetUtcNow()));
         await dbContext.SaveChangesAsync(cancellationToken);
         LogStockAdjusted(logger, productId, request.QuantityChange, stockItem.QuantityOnHand);
 

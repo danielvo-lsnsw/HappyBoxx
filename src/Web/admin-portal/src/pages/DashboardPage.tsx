@@ -107,7 +107,7 @@ export function DashboardPage() {
           icon={IconCategory}
           color="blue"
           to="/inventory/categories"
-          hint="Vegetables, fruits, containers…"
+          hint="Fresh produce, packaging, supplies…"
         />
         <KpiCard
           label="Tracked stock"

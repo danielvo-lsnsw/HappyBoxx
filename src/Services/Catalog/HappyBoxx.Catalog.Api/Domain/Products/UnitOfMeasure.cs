@@ -2,11 +2,12 @@ namespace HappyBoxx.Catalog.Api.Domain.Products;
 
 public enum UnitOfMeasure
 {
-    Piece = 1,
-    Kilogram = 2,
-    Gram = 3,
-    Bunch = 4,
-    Pack = 5,
-    Box = 6,
-    Carton = 7,
+    Each = 1,
+    Piece = 2,
+    Kilogram = 3,
+    Gram = 4,
+    Bunch = 5,
+    Pack = 6,
+    Box = 7,
+    Carton = 8,
 }

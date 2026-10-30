@@ -3,6 +3,8 @@ export interface StockItem {
   productId: string;
   sku: string;
   quantityOnHand: number;
+  minLevel: number;
+  maxLevel: number;
   reorderLevel: number;
   isLowStock: boolean;
   updatedAtUtc: string;
@@ -16,7 +18,25 @@ export interface CreateStockItemRequest {
   productId: string;
   sku: string;
   initialQuantity: number;
-  reorderLevel: number;
+  minLevel: number;
+  maxLevel: number;
+}
+
+export interface UpdateStockPolicyRequest {
+  minLevel: number;
+  maxLevel: number;
+}
+
+export interface ReorderSuggestion {
+  productId: string;
+  sku: string;
+  quantityOnHand: number;
+  minLevel: number;
+  maxLevel: number;
+  avgDailyDemand: number;
+  reorderPoint: number;
+  suggestedOrderQuantity: number;
+  needToOrderThisWeek: boolean;
 }
 
 export interface ListStockParams {
@@ -24,4 +44,9 @@ export interface ListStockParams {
   pageSize?: number;
   sku?: string;
   lowStockOnly?: boolean;
+}
+
+export interface ListReorderSuggestionsParams {
+  lookbackDays?: number;
+  needThisWeekOnly?: boolean;
 }

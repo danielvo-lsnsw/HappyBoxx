@@ -11,7 +11,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyBoxx.Inventory.Api.Features.Stock;
 
-public sealed record CreateStockItemRequest(Guid ProductId, string Sku, decimal InitialQuantity, decimal ReorderLevel);
+public sealed record CreateStockItemRequest(
+    Guid ProductId,
+    string Sku,
+    decimal InitialQuantity,
+    decimal MinLevel,
+    decimal MaxLevel);
 
 internal sealed class CreateStockItemValidator : AbstractValidator<CreateStockItemRequest>
 {
@@ -20,7 +25,8 @@ internal sealed class CreateStockItemValidator : AbstractValidator<CreateStockIt
         RuleFor(x => x.ProductId).NotEmpty();
         RuleFor(x => x.Sku).NotEmpty().MaximumLength(StockItem.SkuMaxLength);
         RuleFor(x => x.InitialQuantity).GreaterThanOrEqualTo(0).PrecisionScale(18, 3, ignoreTrailingZeros: true);
-        RuleFor(x => x.ReorderLevel).GreaterThanOrEqualTo(0).PrecisionScale(18, 3, ignoreTrailingZeros: true);
+        RuleFor(x => x.MinLevel).GreaterThanOrEqualTo(0).PrecisionScale(18, 3, ignoreTrailingZeros: true);
+        RuleFor(x => x.MaxLevel).GreaterThanOrEqualTo(x => x.MinLevel).PrecisionScale(18, 3, ignoreTrailingZeros: true);
     }
 }
 
@@ -33,7 +39,12 @@ internal sealed class CreateStockItemHandler(InventoryDbContext dbContext) : IHa
             return StockErrors.AlreadyExists(request.ProductId);
         }
 
-        var stockItem = StockItem.Create(request.ProductId, request.Sku, request.InitialQuantity, request.ReorderLevel);
+        var stockItem = StockItem.Create(
+            request.ProductId,
+            request.Sku,
+            request.InitialQuantity,
+            request.MinLevel,
+            request.MaxLevel);
         dbContext.StockItems.Add(stockItem);
         await dbContext.SaveChangesAsync(cancellationToken);
 
