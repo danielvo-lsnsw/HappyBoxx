@@ -17,7 +17,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("identity")
+                .HasDefaultSchema("access")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -73,7 +73,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("NormalizedEmail")
                         .IsUnique();
 
-                    b.ToTable("AccessAccounts", "identity");
+                    b.ToTable("AccessAccounts", "access");
                 });
 
             modelBuilder.Entity("HappyBoxx.Identity.Api.Domain.CustomerProfile", b =>
@@ -119,7 +119,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("AccountId");
 
-                    b.ToTable("CustomerProfiles", "identity");
+                    b.ToTable("CustomerProfiles", "access");
                 });
 
             modelBuilder.Entity("HappyBoxx.Identity.Api.Domain.IdentityAuditEvent", b =>
@@ -154,7 +154,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TargetInvitationId");
 
-                    b.ToTable("IdentityAuditEvents", "identity");
+                    b.ToTable("AccessAuditEvents", "access");
                 });
 
             modelBuilder.Entity("HappyBoxx.Identity.Api.Domain.StaffInvitation", b =>
@@ -206,7 +206,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("NormalizedEmail", "ExpiresAtUtc");
 
-                    b.ToTable("StaffInvitations", "identity");
+                    b.ToTable("StaffInvitations", "access");
                 });
 
             modelBuilder.Entity("HappyBoxx.Identity.Api.Domain.CustomerProfile", b =>

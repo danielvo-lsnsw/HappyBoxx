@@ -121,6 +121,12 @@ export const navigation: NavItem[] = [
     icon: IconClipboardList,
     children: [
       {
+        label: 'Invoices',
+        path: '/invoices',
+        icon: IconClipboardList,
+        description: 'Create and print customer tax invoices',
+      },
+      {
         label: 'Pending',
         path: '/orders/pending',
         icon: IconHourglass,
@@ -155,11 +161,10 @@ export const navigation: NavItem[] = [
     icon: IconTruckDelivery,
     children: [
       {
-        label: 'Route Planning',
-        path: '/logistics/routes',
+        label: 'Delivery schedules',
+        path: '/logistics/delivery-schedules',
         icon: IconRoute,
-        description: 'Plan delivery runs',
-        planned: true,
+        description: 'Create delivery runs from selected invoices',
       },
       {
         label: 'Driver Dispatch',
@@ -189,7 +194,6 @@ export const navigation: NavItem[] = [
     path: '/customers',
     icon: IconUsers,
     description: 'Wholesale (B2B) and retail (B2C) buyers',
-    planned: true,
   },
   {
     label: 'Reports & Analytics',

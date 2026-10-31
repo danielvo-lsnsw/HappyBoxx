@@ -3,6 +3,7 @@ import {
   Button,
   Center,
   Container,
+  Group,
   Paper,
   Select,
   Stack,
@@ -85,10 +86,20 @@ export function AcceptStaffInvitationPage() {
                 {t('Verify the invited email with Entra before claiming the invitation.')}
               </Text>
             </div>
+            {user && (
+              <Group justify="space-between" align="center">
+                <Text size="sm" c="dimmed">
+                  {user.email}
+                </Text>
+                <Button variant="default" onClick={signOut}>
+                  {t('Sign out')}
+                </Button>
+              </Group>
+            )}
             {claimed ? (
               <>
                 <Text>{t('Invitation claimed. Sign in again to load your assigned access.')}</Text>
-                <Button onClick={signOut}>{t('Sign in again')}</Button>
+                <Button onClick={signOut}>{t('Sign out')}</Button>
               </>
             ) : !user ? (
               authMode === 'development' ? (
@@ -148,9 +159,6 @@ export function AcceptStaffInvitationPage() {
             ) : (
               <form onSubmit={submit} noValidate>
                 <Stack gap="sm">
-                  <Text size="sm" fw={600}>
-                    {user.email}
-                  </Text>
                   {authMode === 'development' && user.isDevelopmentIdentity && (
                     <DevelopmentIdentitySwitcher
                       email={localEmail || user.email}

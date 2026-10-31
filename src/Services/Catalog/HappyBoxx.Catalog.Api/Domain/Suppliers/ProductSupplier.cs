@@ -2,6 +2,8 @@ namespace HappyBoxx.Catalog.Api.Domain.Suppliers;
 
 public sealed class ProductSupplier
 {
+    public const int NoteMaxLength = 2000;
+
     private ProductSupplier()
     {
     }
@@ -15,6 +17,8 @@ public sealed class ProductSupplier
     public decimal? LastBuyPrice { get; private set; }
 
     public DateTimeOffset? LastBuyPriceAtUtc { get; private set; }
+
+    public string? Note { get; private set; }
 
     public Products.Product Product { get; private set; } = null!;
 
@@ -35,4 +39,6 @@ public sealed class ProductSupplier
         LastBuyPrice = price;
         LastBuyPriceAtUtc = atUtc;
     }
+
+    public void SetNote(string? note) => Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
 }

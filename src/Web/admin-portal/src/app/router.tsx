@@ -62,6 +62,27 @@ export const router = createBrowserRouter([
           })),
       },
       {
+        path: 'invoices',
+        lazy: () =>
+          import('@/features/invoices/pages/InvoicesPage').then((m) => ({
+            Component: m.InvoicesPage,
+          })),
+      },
+      {
+        path: 'logistics/delivery-schedules',
+        lazy: () =>
+          import('@/features/delivery-schedules/pages/DeliverySchedulesPage').then((m) => ({
+            Component: m.DeliverySchedulesPage,
+          })),
+      },
+      {
+        path: 'customers',
+        lazy: () =>
+          import('@/features/customers/pages/CustomersPage').then((m) => ({
+            Component: m.CustomersPage,
+          })),
+      },
+      {
         path: 'admin/staff',
         lazy: () =>
           import('@/pages/StaffAccessPage').then((m) => ({ Component: m.StaffAccessPage })),

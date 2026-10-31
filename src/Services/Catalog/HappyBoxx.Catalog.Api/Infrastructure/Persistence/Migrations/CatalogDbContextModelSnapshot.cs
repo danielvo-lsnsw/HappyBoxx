@@ -188,6 +188,10 @@ namespace HappyBoxx.Catalog.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastBuyPriceAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
                     b.HasKey("ProductId", "SupplierId");
 
                     b.HasIndex("SupplierId");

@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("happyboxxdb")
+    ?? builder.Configuration.GetConnectionString("inventorydb")
+    ?? throw new InvalidOperationException("Connection string 'happyboxxdb' is not configured.");
 
 builder.AddServiceDefaults();
 
@@ -15,8 +18,9 @@ builder.Services.AddHappyBoxxAuthentication(builder.Configuration, builder.Envir
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<InventoryDbContext>((sp, options) => options
-    .UseSqlServer(builder.Configuration.GetConnectionString("inventorydb")
-        ?? throw new InvalidOperationException("Connection string 'inventorydb' is not configured."))
+    .UseSqlServer(
+        connectionString,
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", InventoryDbContext.Schema))
     .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>()));
 builder.EnrichSqlServerDbContext<InventoryDbContext>();
 

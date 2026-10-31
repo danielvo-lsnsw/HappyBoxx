@@ -14,6 +14,7 @@ flowchart LR
     admin[Admin Portal<br/>React + Vite] --> gw[Gateway<br/>YARP]
     gw -->|/api/v1/categories, /products| catalog[Catalog API]
     gw -->|/api/v1/stock| inventory[Inventory API]
+    gw -->|/api/v1/invoices| billing[Billing API]
     catalog --> catdb[(catalogdb)]
     inventory --> invdb[(inventorydb)]
 ```
@@ -28,7 +29,12 @@ The whole system is orchestrated locally by **.NET Aspire**, which provides serv
 | `src/Gateway/HappyBoxx.Gateway` | Single entry point for front-ends |
 | `src/Services/Catalog` | Categories, products, pricing tiers and suppliers |
 | `src/Services/Inventory` | Stock levels and adjustments |
+| `src/Services/Billing` | Customer invoices and GST totals |
 | `src/Web/admin-portal` | Admin SPA |
+
+### Invoices
+
+Invoices are created from customer/address and line-item details, saved in the billing database, and can be printed or saved as PDF from **Orders → Invoices**. Entered prices include GST; the invoice shows the included 10% GST separately.
 
 ## Prerequisites
 

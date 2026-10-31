@@ -34,7 +34,21 @@ export interface PagedResult<T> {
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
 
-const API_BASE = '/api/v1';
+const API_BASE = resolveApiBase(import.meta.env.VITE_API_BASE_URL);
+
+function resolveApiBase(configuredBase: string | undefined): string {
+  const trimmed = configuredBase?.trim();
+  if (!trimmed) {
+    return '/api/v1';
+  }
+
+  const withoutTrailingSlash = trimmed.replace(/\/+$/, '');
+  if (withoutTrailingSlash.startsWith('http://') || withoutTrailingSlash.startsWith('https://')) {
+    return withoutTrailingSlash;
+  }
+
+  return withoutTrailingSlash.startsWith('/') ? withoutTrailingSlash : `/${withoutTrailingSlash}`;
+}
 
 export function buildUrl(path: string, params?: QueryParams): string {
   const search = new URLSearchParams();
@@ -44,7 +58,8 @@ export function buildUrl(path: string, params?: QueryParams): string {
     }
   }
   const query = search.toString();
-  return `${API_BASE}${path}${query ? `?${query}` : ''}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${API_BASE}${normalizedPath}${query ? `?${query}` : ''}`;
 }
 
 async function request<T>(
@@ -104,4 +119,5 @@ export const httpClient = {
     return (await response.json()) as T;
   },
   put: <T>(path: string, body: unknown) => request<T>('PUT', buildUrl(path), body),
+  delete: <T = void>(path: string) => request<T>('DELETE', buildUrl(path)),
 };

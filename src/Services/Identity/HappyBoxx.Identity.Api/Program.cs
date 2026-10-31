@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("happyboxxdb")
+    ?? builder.Configuration.GetConnectionString("identitydb")
+    ?? throw new InvalidOperationException("Connection string 'happyboxxdb' is not configured.");
 
 builder.AddServiceDefaults();
 builder.Services.AddBuildingBlocks(typeof(Program).Assembly);
@@ -19,8 +22,9 @@ builder.Services.AddStaffInvitationEmail(builder.Configuration, builder.Environm
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<IdentityDbContext>((sp, options) => options
-    .UseSqlServer(builder.Configuration.GetConnectionString("identitydb")
-        ?? throw new InvalidOperationException("Connection string 'identitydb' is not configured."))
+    .UseSqlServer(
+        connectionString,
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", IdentityDbContext.Schema))
     .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>()));
 builder.EnrichSqlServerDbContext<IdentityDbContext>();
 builder.Services.AddSingleton(TimeProvider.System);

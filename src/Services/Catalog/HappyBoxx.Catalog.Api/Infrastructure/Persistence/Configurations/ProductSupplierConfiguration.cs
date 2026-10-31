@@ -14,6 +14,7 @@ internal sealed class ProductSupplierConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(ps => ps.IsDefault).IsRequired();
         builder.Property(ps => ps.LastBuyPrice).HasPrecision(18, 3);
         builder.Property(ps => ps.LastBuyPriceAtUtc);
+        builder.Property(ps => ps.Note).HasMaxLength(ProductSupplier.NoteMaxLength);
 
         builder.HasOne(ps => ps.Product)
             .WithMany(p => p.ProductSuppliers)

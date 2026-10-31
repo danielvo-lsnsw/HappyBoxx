@@ -137,11 +137,14 @@ internal sealed class DevelopmentAuthenticationHandler(
 internal sealed class IdentityServiceRoleClaimsTransformation(
     IHttpClientFactory httpClientFactory,
     IHttpContextAccessor httpContextAccessor,
+    IConfiguration configuration,
     ILogger<IdentityServiceRoleClaimsTransformation> logger)
     : IClaimsTransformation
 {
     private const string RolesClaim = "roles";
     private const string ResolvedClaim = "happyboxx_role_resolved";
+    private readonly string _accessCurrentUrl = configuration["IdentityService:AccessCurrentUrl"]
+        ?? "https+http://identity-api/api/v1/identity/access/current";
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -166,7 +169,7 @@ internal sealed class IdentityServiceRoleClaimsTransformation(
         {
             using var request = new HttpRequestMessage(
                 HttpMethod.Get,
-                "https+http://identity-api/api/v1/identity/access/current");
+                _accessCurrentUrl);
             request.Headers.Authorization = authorizationHeader;
 
             using var response = await httpClientFactory.CreateClient("identity-access").SendAsync(

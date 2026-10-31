@@ -9,12 +9,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Catalog\HappyBoxx.Catalog.Api\HappyBoxx.Catalog.Api.csproj" />
     <ProjectReference Include="..\..\Services\Inventory\HappyBoxx.Inventory.Api\HappyBoxx.Inventory.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Billing\HappyBoxx.Billing.Api\HappyBoxx.Billing.Api.csproj" />
     <ProjectReference Include="..\..\Services\Identity\HappyBoxx.Identity.Api\HappyBoxx.Identity.Api.csproj" />
     <ProjectReference Include="..\..\Gateway\HappyBoxx.Gateway\HappyBoxx.Gateway.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="MessagePack" />
   </ItemGroup>
 
 </Project>

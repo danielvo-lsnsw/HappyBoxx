@@ -6,7 +6,7 @@ namespace HappyBoxx.Identity.Api.Infrastructure.Persistence;
 
 public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : DbContext(options)
 {
-    public const string Schema = "identity";
+    public const string Schema = "access";
 
     public DbSet<AccessAccount> Accounts => Set<AccessAccount>();
 
@@ -81,7 +81,7 @@ internal sealed class IdentityAuditEventConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<IdentityAuditEvent> builder)
     {
-        builder.ToTable("IdentityAuditEvents");
+        builder.ToTable("AccessAuditEvents");
         builder.HasKey(auditEvent => auditEvent.Id);
         builder.Property(auditEvent => auditEvent.Id).ValueGeneratedNever();
         builder.Property(auditEvent => auditEvent.ActorSubject).HasMaxLength(200).IsRequired();

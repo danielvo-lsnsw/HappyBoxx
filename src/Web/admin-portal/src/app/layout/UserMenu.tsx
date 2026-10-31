@@ -10,7 +10,6 @@ import {
 } from '@mantine/core';
 import {
   IconChevronDown,
-  IconClockPlay,
   IconLanguage,
   IconLogout,
   IconMoon,
@@ -74,9 +73,6 @@ export function UserMenu() {
             {t('Staff access')}
           </Menu.Item>
         )}
-        <Menu.Item leftSection={<IconClockPlay size={18} />} rightSection={<SoonBadge />} disabled>
-          {t('Clock in / out')}
-        </Menu.Item>
         <Menu.Item
           leftSection={isDark ? <IconSun size={18} /> : <IconMoon size={18} />}
           onClick={() => setColorScheme(isDark ? 'light' : 'dark')}

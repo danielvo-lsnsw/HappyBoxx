@@ -20,7 +20,11 @@
   <Folder Name="/src/Services/Inventory/">
     <Project Path="src/Services/Inventory/HappyBoxx.Inventory.Api/HappyBoxx.Inventory.Api.csproj" />
   </Folder>
+  <Folder Name="/src/Services/Billing/">
+    <Project Path="src/Services/Billing/HappyBoxx.Billing.Api/HappyBoxx.Billing.Api.csproj" />
+  </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/HappyBoxx.Billing.UnitTests/HappyBoxx.Billing.UnitTests.csproj" />
     <Project Path="tests/HappyBoxx.Catalog.UnitTests/HappyBoxx.Catalog.UnitTests.csproj" />
     <Project Path="tests/HappyBoxx.Identity.UnitTests/HappyBoxx.Identity.UnitTests.csproj" />
   </Folder>

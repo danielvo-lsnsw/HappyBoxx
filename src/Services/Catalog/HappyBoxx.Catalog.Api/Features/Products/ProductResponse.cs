@@ -8,7 +8,8 @@ public sealed record ProductSupplierResponse(
     string Name,
     bool IsDefault,
     decimal? LastBuyPrice,
-    DateTimeOffset? LastBuyPriceAtUtc);
+    DateTimeOffset? LastBuyPriceAtUtc,
+    string? Note);
 
 public sealed record ProductResponse(
     Guid Id,
@@ -54,7 +55,8 @@ public sealed record ProductResponse(
                     ps.Supplier.Name,
                     ps.IsDefault,
                     ps.LastBuyPrice,
-                    ps.LastBuyPriceAtUtc))
+                    ps.LastBuyPriceAtUtc,
+                    ps.Note))
                 .ToList(),
             p.SellPriceNear ?? 0m,
             p.IsActive,

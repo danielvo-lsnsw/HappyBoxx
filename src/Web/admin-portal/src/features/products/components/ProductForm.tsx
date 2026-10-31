@@ -130,49 +130,50 @@ export function ProductForm({ id, mode, initialValues, categories, onSubmit }: P
           {...form.getInputProps('description')}
         />
         <SimpleGrid cols={{ base: 1, xs: 2 }}>
-          <Select
-            label={t('Unit of measure')}
-            required
-            allowDeselect={false}
-            data={UNITS_OF_MEASURE.map((u) => ({ value: u, label: t(unitLabels[u].long) }))}
-            {...form.getInputProps('unit')}
-          />
-          <NumberInput
-            label={t('Sell price (Near)')}
-            min={0}
-            decimalScale={3}
-            fixedDecimalScale
-            prefix={currencySymbol()}
-            thousandSeparator=","
-            {...form.getInputProps('sellPriceNear')}
-          />
+          <Stack gap="md">
+            <Select
+              label={t('Unit of measure')}
+              required
+              allowDeselect={false}
+              data={UNITS_OF_MEASURE.map((u) => ({ value: u, label: t(unitLabels[u].long) }))}
+              {...form.getInputProps('unit')}
+            />
+            <TextInput
+              label={t('Price effective date')}
+              type="date"
+              {...form.getInputProps('priceEffectiveDate')}
+            />
+          </Stack>
+          <Stack gap="md">
+            <NumberInput
+              label={t('Sell price (Near)')}
+              min={0}
+              decimalScale={3}
+              fixedDecimalScale
+              prefix={currencySymbol()}
+              thousandSeparator=","
+              {...form.getInputProps('sellPriceNear')}
+            />
+            <NumberInput
+              label={t('Sell price (Far)')}
+              min={0}
+              decimalScale={3}
+              fixedDecimalScale
+              prefix={currencySymbol()}
+              thousandSeparator=","
+              {...form.getInputProps('sellPriceFar')}
+            />
+            <NumberInput
+              label={t('Buy price')}
+              min={0}
+              decimalScale={3}
+              fixedDecimalScale
+              prefix={currencySymbol()}
+              thousandSeparator=","
+              {...form.getInputProps('buyPrice')}
+            />
+          </Stack>
         </SimpleGrid>
-        <SimpleGrid cols={{ base: 1, xs: 2 }}>
-          <NumberInput
-            label={t('Sell price (Far)')}
-            min={0}
-            decimalScale={3}
-            fixedDecimalScale
-            prefix={currencySymbol()}
-            thousandSeparator=","
-            {...form.getInputProps('sellPriceFar')}
-          />
-          <NumberInput
-            label={t('Buy price')}
-            min={0}
-            decimalScale={3}
-            fixedDecimalScale
-            prefix={currencySymbol()}
-            thousandSeparator=","
-            {...form.getInputProps('buyPrice')}
-          />
-        </SimpleGrid>
-        <TextInput
-          label={t('Price effective date')}
-          type="date"
-          description={t('Format: DD/MM/YYYY')}
-          {...form.getInputProps('priceEffectiveDate')}
-        />
         <SimpleGrid cols={{ base: 1, xs: 2 }}>
           <TagsInput
             label={t('Suppliers')}

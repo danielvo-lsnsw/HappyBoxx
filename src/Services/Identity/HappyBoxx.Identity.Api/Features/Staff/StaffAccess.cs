@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Net.Mail;
 using System.Text;
+using System.Text.Json;
 
 using FluentValidation;
 
@@ -181,7 +183,7 @@ internal sealed class ClaimStaffInvitationEndpoint : IEndpoint
         CancellationToken cancellationToken)
     {
         var subject = principal.FindFirst("sub")?.Value;
-        var email = principal.FindFirst("email")?.Value ?? principal.FindFirst("emails")?.Value;
+        var email = StaffIdentityClaims.TryGetVerifiedEmail(principal);
         if (string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(email))
         {
             return TypedResults.Problem(
@@ -432,6 +434,82 @@ internal static class StaffInvitationCode
 {
     public static string Hash(string code) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code.Trim())));
+}
+
+internal static class StaffIdentityClaims
+{
+    public static string? TryGetVerifiedEmail(ClaimsPrincipal principal)
+    {
+        foreach (var candidate in EnumerateEmailCandidates(principal))
+        {
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                continue;
+            }
+
+            if (MailAddress.TryCreate(candidate, out var parsedAddress))
+            {
+                return parsedAddress.Address;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string?> EnumerateEmailCandidates(ClaimsPrincipal principal)
+    {
+        yield return principal.FindFirst("email")?.Value;
+        yield return principal.FindFirst(ClaimTypes.Email)?.Value;
+        yield return principal.FindFirst("preferred_username")?.Value;
+        yield return principal.FindFirst("upn")?.Value;
+        yield return principal.FindFirst("unique_name")?.Value;
+
+        foreach (var emailFromArrayClaim in ExpandArrayClaim(principal.FindFirst("emails")?.Value))
+        {
+            yield return emailFromArrayClaim;
+        }
+    }
+
+    private static IEnumerable<string> ExpandArrayClaim(string? claimValue)
+    {
+        if (string.IsNullOrWhiteSpace(claimValue))
+        {
+            return [];
+        }
+
+        if (!claimValue.TrimStart().StartsWith("[", StringComparison.Ordinal))
+        {
+            return [claimValue];
+        }
+
+        try
+        {
+            using var json = JsonDocument.Parse(claimValue);
+            if (json.RootElement.ValueKind != JsonValueKind.Array)
+            {
+                return [claimValue];
+            }
+
+            var values = new List<string>();
+            foreach (var element in json.RootElement.EnumerateArray())
+            {
+                if (element.ValueKind == JsonValueKind.String)
+                {
+                    var value = element.GetString();
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        values.Add(value);
+                    }
+                }
+            }
+
+            return values.Count == 0 ? [claimValue] : values;
+        }
+        catch (JsonException)
+        {
+            return [claimValue];
+        }
+    }
 }
 
 internal sealed class ListStaffAccountsEndpoint : IEndpoint

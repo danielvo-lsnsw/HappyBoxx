@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("happyboxxdb")
+    ?? builder.Configuration.GetConnectionString("catalogdb")
+    ?? throw new InvalidOperationException("Connection string 'happyboxxdb' is not configured.");
 
 builder.AddServiceDefaults();
 
@@ -15,8 +18,9 @@ builder.Services.AddHappyBoxxAuthentication(builder.Configuration, builder.Envir
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<CatalogDbContext>((sp, options) => options
-    .UseSqlServer(builder.Configuration.GetConnectionString("catalogdb")
-        ?? throw new InvalidOperationException("Connection string 'catalogdb' is not configured."))
+    .UseSqlServer(
+        connectionString,
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", CatalogDbContext.Schema))
     .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>())
     .UseAsyncSeeding((context, _, cancellationToken) => CatalogSeeder.SeedAsync(context, cancellationToken)));
 builder.EnrichSqlServerDbContext<CatalogDbContext>();
